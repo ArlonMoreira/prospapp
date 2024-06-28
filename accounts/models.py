@@ -24,14 +24,20 @@ class UsersManager(BaseUserManager):
 
         user = self.create_user(
             email=email,
-            password=password
+            password=password,
+            **extra_fields
         )
         user.is_admin = True
         user.is_superuser = True
-
+        user.save(using=self._db)
         return user
 
 class Users(AbstractBaseUser, PermissionsMixin):
+
+    ROLE_CHOICES = (
+        ('Gestor','Gestor'),
+        ('Colaborador', 'Colaborador')
+    )
 
     email = models.EmailField( #E-mail será o campo principal para autenticação do usuário.
         verbose_name="E-mail",
@@ -46,11 +52,18 @@ class Users(AbstractBaseUser, PermissionsMixin):
         blank=False,
         null=False        
     )
-    doc_number = models.IntegerField(
+    doc_number = models.BigIntegerField(
         verbose_name="CPF",
         unique=True,
         blank=False,
         null=False
+    )
+    role = models.CharField(
+        verbose_name="Perfil",
+        max_length=65,
+        blank=True,
+        null=True,
+        choices=ROLE_CHOICES
     )
     is_active = models.BooleanField(
         verbose_name="Ativo",
@@ -69,8 +82,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
         default=timezone.now
     )
 
+    objects = UsersManager()
+
     USERNAME_FIELD = 'email' #No django USERNAME_FIELD é utilizado para identificar qual campo será utilizado como identificador único, nesse caso, USERNAME_FIELD
-    REQUIRED_FIELDS = []  #Determinar quais campos são obrigatórios para criar um super usuário.
+    REQUIRED_FIELDS = ['doc_number', 'full_name']  #Determinar quais campos são obrigatórios para criar um super usuário.
 
     def __str__(self):
         return self.email
