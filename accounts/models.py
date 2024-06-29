@@ -81,6 +81,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
         verbose_name="Data/Cadastro",
         default=timezone.now
     )
+    profileImage = models.ImageField(
+        upload_to='uploads/',
+        null=True,
+        blank=True,
+        default='uploads/default_profile.png'
+    )
 
     objects = UsersManager()
 

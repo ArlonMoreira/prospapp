@@ -133,6 +133,15 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#MEDIA FILES
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media') #Local onde o arquivo é armazenado fisicamente.
+
+MEDIA_URL = '/files/' #Caminho pelo qual as imagens são visualizadas por URL
+
 # Configurações do usuário.
+
+#USER CUSTOM
+AUTH_PROFILE_MODULE = 'accounts.Users'
 
 AUTH_USER_MODEL = 'accounts.Users'
