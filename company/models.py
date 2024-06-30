@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 from accounts.models import Users
 
 class Company(models.Model):
@@ -85,6 +86,10 @@ class CompanyPeople(models.Model):
 
     def __str__(self):
         return f"{self.user} - {self.company} - {self.role}"
+    
+    def clean(self):
+        if self.is_joined and self.is_pending: #Impossibilitar que seja possível ingressar e aguardar o ingresso ao mesmo tempo
+            raise ValidationError('This action could not be performed. The fields is_joined and is_pending can not True togheter.')
     
     def save(self, *args, **kwargs):
         instance = CompanyPeople.objects.filter(id=self.id) #Obtenho a relação já cadastrada
