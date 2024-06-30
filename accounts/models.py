@@ -34,11 +34,6 @@ class UsersManager(BaseUserManager):
 
 class Users(AbstractBaseUser, PermissionsMixin):
 
-    ROLE_CHOICES = (
-        ('Gestor','Gestor'),
-        ('Colaborador', 'Colaborador')
-    )
-
     email = models.EmailField( #E-mail será o campo principal para autenticação do usuário.
         verbose_name="E-mail",
         unique=True,
@@ -54,16 +49,9 @@ class Users(AbstractBaseUser, PermissionsMixin):
     )
     doc_number = models.BigIntegerField(
         verbose_name="CPF",
-        unique=True,
+        unique=False, #O CPF não pode ser único, pois caso deseja se associar a outra empresa terá que criar outra conta com outro e-mail de acesso.
         blank=False,
         null=False
-    )
-    role = models.CharField(
-        verbose_name="Perfil",
-        max_length=65,
-        blank=True,
-        null=True,
-        choices=ROLE_CHOICES
     )
     is_active = models.BooleanField(
         verbose_name="Ativo",
@@ -82,10 +70,10 @@ class Users(AbstractBaseUser, PermissionsMixin):
         default=timezone.now
     )
     profileImage = models.ImageField(
-        upload_to='uploads/',
+        upload_to='profiles/',
         null=True,
         blank=True,
-        default='uploads/default_profile.png'
+        default='profiles/default_profile.png'
     )
 
     objects = UsersManager()
