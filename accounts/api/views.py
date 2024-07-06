@@ -62,7 +62,7 @@ class LoginView(generics.GenericAPIView):
             #Obter token
             data = get_token_for_user(user)
 
-            return Response({'message': 'Usuário ou senha inválidos', 'data': data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Autenticação realizada com sucesso', 'data': data}, status=status.HTTP_200_OK)
 
         return Response({
             'message': 'Usuário ou senha inválidos',
@@ -71,4 +71,4 @@ class LoginView(generics.GenericAPIView):
                     'password': 'Senha inválida'
                 }
             ]
-        })
+        }, status=status.HTTP_401_UNAUTHORIZED)
