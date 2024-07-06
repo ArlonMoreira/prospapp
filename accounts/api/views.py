@@ -4,9 +4,27 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from django.contrib.auth import authenticate, login
-from .serializers import LoginSerializer
+from .serializers import LoginSerializer, RegisterSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
+
+class RegisterView(generics.GenericAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request, *args, **kwargs):
+
+        serializer = self.serializer_class(data=request.data)
+        
+        #Validar formulário de cadastro
+        if not serializer.is_valid():
+            return Response({'message': 'Falha ao cadastrar usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #Obter os dados cadastrados
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Usuário cadastrado', 'data': data}, status=status.HTTP_201_CREATED)
 
 class RefreshTokenView(TokenRefreshView, mixins.ListModelMixin, mixins.CreateModelMixin):
 

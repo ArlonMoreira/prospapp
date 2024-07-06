@@ -43,13 +43,13 @@ class Users(AbstractBaseUser, PermissionsMixin):
     full_name = models.CharField(
         max_length=125,
         verbose_name="Nome completo",
-        unique=False,
+        unique=True,
         blank=False,
         null=False        
     )
     doc_number = models.BigIntegerField(
         verbose_name="CPF",
-        unique=False, #O CPF não pode ser único, pois caso deseja se associar a outra empresa terá que criar outra conta com outro e-mail de acesso.
+        unique=True, #Regra não mais implementada: O CPF não pode ser único, pois caso deseja se associar a outra empresa terá que criar outra conta com outro e-mail de acesso.
         blank=False,
         null=False
     )
