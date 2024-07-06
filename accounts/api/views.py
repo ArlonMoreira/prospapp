@@ -49,7 +49,7 @@ class LoginView(generics.GenericAPIView):
 
         #Validar formulário de autenticação
         if not serializer.is_valid():
-            return Response({'message': 'Falha de autenticação', 'data': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'message': 'Usuário não cadastrado', 'data': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
         
         data = serializer.data
 
@@ -62,10 +62,10 @@ class LoginView(generics.GenericAPIView):
             #Obter token
             data = get_token_for_user(user)
 
-            return Response({'message': 'Autenticação realizada com sucesso.', 'data': data}, status=status.HTTP_200_OK)
+            return Response({'message': 'Usuário ou senha inválidos', 'data': data}, status=status.HTTP_200_OK)
 
         return Response({
-            'message': 'Falha de autenticação',
+            'message': 'Usuário ou senha inválidos',
             'data': [
                 {
                     'password': 'Senha inválida'
