@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinLengthValidator
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.utils import timezone
 
@@ -50,7 +51,7 @@ class Users(AbstractBaseUser, PermissionsMixin):
     doc_number = models.CharField(
         verbose_name="CPF",
         max_length=11,
-        min_length=11,
+        validators=[MinLengthValidator(11)],
         unique=True, #Regra não mais implementada: O CPF não pode ser único, pois caso deseja se associar a outra empresa terá que criar outra conta com outro e-mail de acesso.
         blank=False,
         null=False
