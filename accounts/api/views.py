@@ -72,7 +72,7 @@ class LoginView(generics.GenericAPIView):
         data = serializer.data
 
         #Autenticação
-        user = authenticate(email=data['email'], password=data['password'])
+        user = authenticate(email=data['email'].lower().strip(), password=data['password'])
         #Se autenticado
         if user is not None:
             #Realizar login
