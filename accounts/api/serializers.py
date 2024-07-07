@@ -51,6 +51,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class LoginSerializer(serializers.ModelSerializer):
 
+    email = serializers.EmailField(
+        error_messages={
+            'invalid': 'E-mail inválido',
+            'required': 'O campo e-mail é obrigatório',
+            'unique': 'E-mail já cadastrado'
+        }
+    )
+
     class Meta:
         model = Users
         fields = ('email', 'password')
