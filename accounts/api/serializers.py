@@ -3,8 +3,7 @@ from django.contrib.auth.password_validation import validate_password
 from accounts.models import Users
 from validate_docbr import CPF
 
-class RegisterSerializer(serializers.ModelSerializer):
-    doc_number = serializers.CharField()
+class RegisterSerializer(serializers.ModelSerializer):   
     password = serializers.CharField(
         write_only=True, #Não irá retornar na resposta da requisição, apenas leitura
         required=True,
@@ -51,14 +50,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.ModelSerializer):
-
-    email = serializers.EmailField(
-        error_messages={
-            'invalid': 'E-mail inválido',
-            'required': 'O campo e-mail é obrigatório',
-            'unique': 'E-mail já cadastrado'
-        }
-    )
 
     class Meta:
         model = Users

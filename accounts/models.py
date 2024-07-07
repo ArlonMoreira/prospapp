@@ -39,14 +39,23 @@ class Users(AbstractBaseUser, PermissionsMixin):
         verbose_name="E-mail",
         unique=True,
         blank=False,
-        null=False
+        null=False,
+        error_messages={
+            'invalid': 'E-mail inválido',
+            'required': 'O campo e-mail é obrigatório',
+            'unique': 'E-mail já cadastrado'        
+        }        
     )
     full_name = models.CharField(
         max_length=125,
         verbose_name="Nome completo",
         unique=True,
         blank=False,
-        null=False        
+        null=False,
+        error_messages={
+            'required': 'O campo nome é obrigatório',
+            'unique': 'Nome já cadastrado'            
+        }
     )
     doc_number = models.CharField(
         verbose_name="CPF",
@@ -54,7 +63,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
         validators=[MinLengthValidator(11)],
         unique=True, #Regra não mais implementada: O CPF não pode ser único, pois caso deseja se associar a outra empresa terá que criar outra conta com outro e-mail de acesso.
         blank=False,
-        null=False
+        null=False,
+        error_messages={
+            'invalid': 'CPF inválido',
+            'required': 'O campo CPF é obrigatório',
+            'unique': 'CPF já cadastrado'      
+        }         
     )
     is_active = models.BooleanField(
         verbose_name="Ativo",
