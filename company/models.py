@@ -58,17 +58,20 @@ class CompanyPeople(models.Model):
     user = models.ForeignKey(
         Users,
         on_delete=models.SET_NULL,
-        null=True)
+        null=True,
+        verbose_name='Usuário')
     company = models.ForeignKey(
         Company,
         on_delete=models.SET_NULL,
-        null=True)
+        null=True,
+        verbose_name='Empresa')
     role = models.CharField(
         verbose_name="Perfil",
         max_length=65,
         blank=True,
         null=True,
-        choices=ROLE_CHOICES
+        choices=ROLE_CHOICES,
+        default='Colaborador'
     )
     is_joined = models.BooleanField(
         verbose_name="Ingressou",
@@ -116,4 +119,5 @@ class CompanyPeople(models.Model):
     
     class Meta:
         unique_together = ('user', 'company')
+        verbose_name = 'Relação empresa-colaborador'
 

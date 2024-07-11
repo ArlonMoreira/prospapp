@@ -22,5 +22,6 @@ from django.conf.urls import include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('user/', include('accounts.api.url'))
+    path('user/', include('accounts.api.url')),
+    path('companys/', include('company.api.url'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #static(URL, local de storage dos arquivos)
