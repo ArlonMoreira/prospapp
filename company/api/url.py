@@ -1,6 +1,6 @@
 from django.urls import re_path
-from .views import StatusViews
+from .views import PendingViews
 
 urlpatterns = [
-    re_path('status/', StatusViews.as_view()),
+    re_path('pending/', PendingViews.as_view()),
 ]
