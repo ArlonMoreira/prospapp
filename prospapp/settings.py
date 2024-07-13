@@ -26,7 +26,7 @@ SECRET_KEY = os.environ['SECRET_KEY_PROSPAPP']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['prospapp.onrender.com', 'localhost']
+ALLOWED_HOSTS = ['prospapp.onrender.com', 'localhost', 'prosperefisio.com.br']
 
 
 # Application definition
