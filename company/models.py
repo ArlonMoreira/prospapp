@@ -22,6 +22,12 @@ class Company(models.Model):
         blank=False,
         null=False
     )
+    slug_name = models.CharField(
+        max_length=25,
+        verbose_name='Apelido',
+        blank=True,
+        null=True
+    )
     logo = models.ImageField(
         upload_to='companys/',
         null=True,
