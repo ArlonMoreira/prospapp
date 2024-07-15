@@ -5,11 +5,12 @@ class PendingSerializer(serializers.ModelSerializer):
 
     identification_number = serializers.CharField(required=False)
     trade_name = serializers.CharField(required=False)
+    slug_name = serializers.CharField(required=False)
     logo = serializers.CharField(required=False)
 
     class Meta:
         model = CompanyPeople
-        fields = ('company', 'identification_number', 'trade_name', 'logo', 'is_joined', 'is_pending')
+        fields = ('company', 'identification_number', 'trade_name', 'slug_name', 'logo', 'is_joined', 'is_pending')
     
     def save(self, **kwargs):
         companyPeople = self.instance

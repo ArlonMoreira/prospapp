@@ -17,6 +17,7 @@ def get_status_company(function): #Seria como eu estivesse interceptandoa fun√ß√
                 'company': company,
                 'identification_number': company.identification_number,
                 'trade_name': company.trade_name,
+                'slug_name': company.slug_name,
                 'logo': company.logo,
                 'is_joined': joined.first().is_joined if joined.exists() else False,
                 'is_pending': joined.first().is_pending if joined.exists() else False
