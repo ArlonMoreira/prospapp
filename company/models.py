@@ -35,16 +35,16 @@ class Company(models.Model):
         default='companys/logo.png'
     )
     primary_color = models.CharField(
+        max_length=7,
         verbose_name='Cor primária',
         null=False,
-        blank=False,
-        default='#0C6661'
+        blank=False
     )
     secundary_color = models.CharField(
+        max_length=7,
         verbose_name='Cor secundária',
         null=False,
-        blank=False,
-        default='#008C81'
+        blank=False
     )
 
     def __str__(self):
