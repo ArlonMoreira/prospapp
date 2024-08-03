@@ -126,4 +126,5 @@ class CompanyPeople(models.Model):
     class Meta:
         unique_together = ('user', 'company')
         verbose_name = 'Relação empresa-colaborador'
+        verbose_name_plural = 'Relação empresa-colaboradores'
 

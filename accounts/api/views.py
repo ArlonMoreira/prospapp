@@ -2,11 +2,38 @@ from rest_framework import generics, status, mixins
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
+from django.db.models import F
 from .serializers import LoginSerializer, RegisterSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
+from company.models import CompanyPeople
+
+class MeView(generics.GenericAPIView):
+    permission_classes=[IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        companys = CompanyPeople.objects.filter(user=request.user, is_joined=True).annotate(
+            company_id_annotated=F('company_id'),
+            slug_name=F('company__slug_name'),
+            logo=F('company__logo'),
+            primary_color=F('company__primary_color'),
+            secundary_color=F('company__secundary_color')
+        ).values(
+            'company_id_annotated', 'slug_name', 'logo', 'role', 'primary_color', 'secundary_color', 'is_joined', 'is_pending'
+        )
+
+        companys_joined = list(companys)
+
+        data = {
+            'full_name': request.user.full_name,
+            'doc_number': request.user.doc_number,
+            'profileImage': request.user.profileImage.url,
+            'companys_joined': companys_joined
+        }
+
+        return Response({'message': 'Dados obtidos com sucesso', 'data': data}, status=status.HTTP_200_OK)
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
