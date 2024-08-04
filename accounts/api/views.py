@@ -25,10 +25,12 @@ class LogoutView(APIView):
             token = RefreshToken(refresh_token)
 
             token.blacklist()
-
-            return Response({'message': 'Usuário deslogado com sucesso.'}, status=status.HTTP_205_RESET_CONTENT)
+            print(token)
+            return Response({'message': 'Usuário deslogado com sucesso.'}, status=status.HTTP_200_OK)
+        
         except TokenError as e:
             return Response({'error': 'Token inválido ou expirado'}, status=status.HTTP_400_BAD_REQUEST)
+        
         except Exception as e:
             logger.error(f"Erro no logout: {e}")
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
