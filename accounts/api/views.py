@@ -3,13 +3,35 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import authenticate, login
+from rest_framework_simplejwt.exceptions import TokenError
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
 from .serializers import LoginSerializer, RegisterSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
 from company.models import CompanyPeople
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
+
+class LogoutView(APIView):
+    permission_classes=[IsAuthenticated]
+
+    def post(self, request):
+        try:
+            refresh_token = request.data['refresh']
+            token = RefreshToken(refresh_token)
+
+            token.blacklist()
+
+            return Response({'message': 'Usuário deslogado com sucesso.'}, status=status.HTTP_205_RESET_CONTENT)
+        except TokenError as e:
+            return Response({'error': 'Token inválido ou expirado'}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            logger.error(f"Erro no logout: {e}")
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class MeView(generics.GenericAPIView):
     permission_classes=[IsAuthenticated]

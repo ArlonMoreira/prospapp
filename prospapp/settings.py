@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'accounts',
     'company'
@@ -70,6 +71,8 @@ CSRF_COOKIE_NAME = "csrftoken"
 ROOT_URLCONF = 'prospapp.urls'
 
 SIMPLE_JWT = {
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
+    'BLACKLIST_AFTER_ROTATION': True,    
     'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=5),
     'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=30),
 }
