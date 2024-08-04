@@ -9,6 +9,7 @@ from .serializers import LoginSerializer, RegisterSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
 from company.models import CompanyPeople
+from django.conf import settings
 
 class MeView(generics.GenericAPIView):
     permission_classes=[IsAuthenticated]
@@ -29,7 +30,7 @@ class MeView(generics.GenericAPIView):
         data = {
             'full_name': request.user.full_name,
             'doc_number': request.user.doc_number,
-            'profileImage': request.user.profileImage.url,
+            'profileImage': request.user.profileImage.url if request.user.profileImage else settings.MEDIA_URL+'profiles/default_profile.png',
             'companys_joined': companys_joined
         }
 
