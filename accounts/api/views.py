@@ -25,7 +25,7 @@ class LogoutView(APIView):
             token = RefreshToken(refresh_token)
 
             token.blacklist()
-            print(token)
+
             return Response({'message': 'Usuário deslogado com sucesso.'}, status=status.HTTP_200_OK)
         
         except TokenError as e:

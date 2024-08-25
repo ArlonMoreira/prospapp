@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.exceptions import ValidationError
 from company.models import Company
 
 class ClassOfStudent(models.Model):
@@ -23,6 +24,7 @@ class ClassOfStudent(models.Model):
         return self.name
 
     class Meta:
+        unique_together = ('name', 'company')
         verbose_name='Turma'
         verbose_name_plural='Turmas'
 
