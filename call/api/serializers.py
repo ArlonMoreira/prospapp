@@ -1,5 +1,24 @@
 from rest_framework import serializers
-from call.models import ClassOfStudent, Company
+from call.models import ClassOfStudent, Company, Student
+
+class StudentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Student
+        fields = ('id', 'name', 'identification_number')
+
+    def save(self, **kwargs):
+        classOfStudent = ClassOfStudent.objects.filter(id=self.validated_data.get('classId')).first()
+
+        student = Student(
+            name=self.validated_data.get('name'),
+            identification_number=self.validated_data.get('identification_number'),
+            classOfStudent=classOfStudent
+        )
+
+        student.save()
+
+        return student
 
 class ClassOfStudentSerializer(serializers.ModelSerializer):
 

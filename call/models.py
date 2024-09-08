@@ -1,6 +1,6 @@
 from django.db import models
-from django.core.exceptions import ValidationError
 from company.models import Company
+from django.utils import timezone
 
 class ClassOfStudent(models.Model):
     company = models.ForeignKey(
@@ -40,6 +40,12 @@ class Student(models.Model):
         null=False,
         blank=False
     )
+    classOfStudent = models.ForeignKey(
+        ClassOfStudent,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Organização'
+    )    
     is_active = models.BooleanField(
         verbose_name="Ativo",
         default=True
@@ -52,28 +58,24 @@ class Student(models.Model):
         verbose_name='Estudante'
         verbose_name_plural='Estudantes'
 
-class Registration(models.Model):
-    classOfStudent = models.ForeignKey(
-        ClassOfStudent,
-        on_delete=models.SET_NULL,
-        null=True,
-        verbose_name='Organização'
-    )
+class Call(models.Model):  
     student = models.ForeignKey(
         Student,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Estudante'
+        verbose_name='Aluno'                
     )
-    date_joined = models.DateTimeField(
-        verbose_name="Data/Ingresso",
-        blank=True,
-        null=True
+    present = models.BooleanField(
+        default=False,
+        verbose_name='Presente'
     )
-
+    date = models.DateTimeField(
+        verbose_name="Data/Cadastro",
+        default=timezone.now
+    )
     def __str__(self):
-        return f"{self.classOfStudent} - {self.student}"
+        return self.student  
 
     class Meta:
-        verbose_name='Matrícula'
-        verbose_name_plural='Matrículados'    
+        verbose_name='Chamada'
+        verbose_name_plural='Chamadas'       
