@@ -1,11 +1,17 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer
+from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student
 
 class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
+
+    def get(self, classId=None):
+        student = Student.objects.filter(classOfStudent=classId, is_active=True)
+        serializer = self.serializer_class(student, many=True).data
+        
+        return Response({'message': 'Dados recuperados com sucesso', 'data': serializer}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
@@ -21,7 +27,7 @@ class ClassOfStudentView(generics.GenericAPIView):
     serializer_class = ClassOfStudentSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, company=None):
+    def get(self, company=None):
         classOfStudent = ClassOfStudent.objects.filter(company=company)   
         serializer = self.serializer_class(classOfStudent, many=True).data
 
