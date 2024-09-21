@@ -3,13 +3,18 @@ from call.models import ClassOfStudent, Company, Student
 
 class StudentSerializer(serializers.ModelSerializer):
 
+    classId = serializers.IntegerField(
+        write_only=True,
+        required=True
+    )
+
     class Meta:
         model = Student
-        fields = ('id', 'name', 'identification_number')
+        fields = ('id', 'name', 'identification_number', 'classId')
 
     def save(self, **kwargs):
         classOfStudent = ClassOfStudent.objects.filter(id=self.validated_data.get('classId')).first()
-
+  
         student = Student(
             name=self.validated_data.get('name'),
             identification_number=self.validated_data.get('identification_number'),

@@ -44,7 +44,7 @@ class Student(models.Model):
         ClassOfStudent,
         on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Organização'
+        verbose_name='Classe'
     )    
     is_active = models.BooleanField(
         verbose_name="Ativo",
@@ -73,6 +73,7 @@ class Call(models.Model):
         verbose_name="Data/Cadastro",
         default=timezone.now
     )
+    
     def __str__(self):
         return self.student  
 
