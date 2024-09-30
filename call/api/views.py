@@ -1,7 +1,21 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student
+from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer
+
+class CallView(generics.GenericAPIView):
+    serializer_class = CallSerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if(not serializer.is_valid()):
+            return Response({'message': 'Falha ao registrar chamada', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Chamada registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
 
 class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer

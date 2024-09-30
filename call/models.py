@@ -75,7 +75,7 @@ class Call(models.Model):
     )
     
     def __str__(self):
-        return self.student  
+        return self.student.name 
 
     class Meta:
         verbose_name='Chamada'

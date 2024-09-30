@@ -1,5 +1,34 @@
 from rest_framework import serializers
-from call.models import ClassOfStudent, Company, Student
+from call.models import ClassOfStudent, Company, Student, Call
+from django.utils import timezone
+
+class CallSerializer(serializers.ModelSerializer):
+    date = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Call
+        fields = ('student', 'present', 'date')
+
+    def get_date(self, obj):
+        return obj.date.strftime('%Y-%m-%d')        
+
+    def save(self, **kwargs):
+
+        call = Call.objects.filter(student=self.validated_data.get('student'), date__date=timezone.now().date())
+
+        if call.exists():
+            call = call.first()
+            call.present = self.validated_data.get('present')
+
+        else:
+            call = Call(
+                student=self.validated_data.get('student'),
+                present=self.validated_data.get('present')
+            )
+
+        call.save()
+
+        return call
 
 class StudentSerializer(serializers.ModelSerializer):
 
