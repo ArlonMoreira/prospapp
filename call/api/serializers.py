@@ -32,6 +32,8 @@ class CallSerializer(serializers.ModelSerializer):
 
 class StudentSerializer(serializers.ModelSerializer):
 
+    present = serializers.BooleanField(required=False)
+    date = serializers.DateField(required=False)
     classId = serializers.IntegerField(
         write_only=True,
         required=True
@@ -39,7 +41,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Student
-        fields = ('id', 'name', 'identification_number', 'classId')
+        fields = ('id', 'name', 'identification_number', 'classId', 'present', 'date')
 
     def save(self, **kwargs):
         classOfStudent = ClassOfStudent.objects.filter(id=self.validated_data.get('classId')).first()
