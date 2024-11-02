@@ -3,6 +3,9 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
+from django.db.models import F
+from datetime import date, timedelta
+import calendar
 
 class CallView(generics.GenericAPIView):
     serializer_class = CallSerializer
@@ -17,6 +20,48 @@ class CallView(generics.GenericAPIView):
         data = self.serializer_class(serializer.save()).data
 
         return Response({'message': 'Chamada registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+    
+class ReportCallView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, classId=None, year=None, month=None):
+
+        # obtém chamadas
+        calls = Call.objects.filter(student__classOfStudent=classId, date__year=year, date__month=month)
+
+        # Obtém o último dia do mês
+        last_day = calendar.monthrange(int(year), int(month))[1]
+        # Cria a data de início e fim do mês
+        start_date = date(int(year), int(month), 1)
+        end_date = date(int(year), int(month), last_day)
+        # Gera todas as datas do mês
+        dates = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range((end_date - start_date).days + 1)]
+
+        # Obter estudantes
+        students = Student.objects.filter(classOfStudent=classId)
+
+        if students.exists():
+            students = list(students.values())
+
+            privot_data = {}
+            for entry in students:
+                student = entry['name']
+                if student not in privot_data: #Serve para não deixar incluir repetidos, caso contrário, um mesmo estudante vai aparecer mais de uma vez
+                    privot_data[student] = { day: None for day in dates }
+
+            if calls.exists():
+                calls = list(calls.values('student__name', 'date', 'present'))
+
+                # Tratar campos
+                calls = [{'student': call['student__name'], 'date': call['date'].strftime('%Y-%m-%d'), 'present': call['present']} for call in calls]
+                
+                # Preenhcer privot_data com os status de cada estudante por dia
+                for entry in calls:
+                    privot_data[entry['student']][entry['date']] = entry['present']
+
+            return Response(privot_data)
+
+        return Response({})
 
 class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
