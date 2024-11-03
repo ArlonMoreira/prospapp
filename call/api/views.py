@@ -59,9 +59,9 @@ class ReportCallView(generics.GenericAPIView):
                 for entry in calls:
                     privot_data[entry['student']][entry['date']] = entry['present']
 
-            return Response(privot_data)
+            return Response({'message': 'Relatório gerado com sucesso', 'data': privot_data}, status=status.HTTP_200_OK)
 
-        return Response({})
+        return Response({'message': 'Falha ao gerar o relatório'}, status=status.HTTP_400_BAD_REQUEST)
 
 class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
