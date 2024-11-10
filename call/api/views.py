@@ -12,14 +12,21 @@ class CallView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        if not isinstance(request.data, list):
+            return Response({'message': 'Falha ao registrar chamada, é esperado uma lista de alunos'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        responses = []        
+        
+        #Percorre a lista de chamada passada no formato {student: 29, present: true}, percorre essa lista, armazena as respostas em responses.
+        for item in request.data:
+            serializer = self.serializer_class(data=item)
 
-        if(not serializer.is_valid()):
-            return Response({'message': 'Falha ao registrar chamada', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            if(not serializer.is_valid()):
+                return Response({'message': 'Falha ao registrar chamada', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        data = self.serializer_class(serializer.save()).data
+            responses.append(self.serializer_class(serializer.save()).data)
 
-        return Response({'message': 'Chamada registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+        return Response({'message': 'Chamada registrada com sucesso.', 'data': responses}, status=status.HTTP_201_CREATED)
     
 class ReportCallView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
