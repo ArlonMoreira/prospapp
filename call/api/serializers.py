@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from call.models import ClassOfStudent, Company, Student, Call
 from django.utils import timezone
+import pytz
 
 class CallSerializer(serializers.ModelSerializer):
     date = serializers.SerializerMethodField()
@@ -13,8 +14,8 @@ class CallSerializer(serializers.ModelSerializer):
         return obj.date.strftime('%Y-%m-%d')        
 
     def save(self, **kwargs):
-
-        call = Call.objects.filter(student=self.validated_data.get('student'), date__date=timezone.now().date())
+       
+        call = Call.objects.filter(student=self.validated_data.get('student'), date=timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date() )
 
         if call.exists():
             call = call.first()
@@ -23,7 +24,8 @@ class CallSerializer(serializers.ModelSerializer):
         else:
             call = Call(
                 student=self.validated_data.get('student'),
-                present=self.validated_data.get('present')
+                present=self.validated_data.get('present'),
+                date=timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date() 
             )
 
         call.save()

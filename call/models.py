@@ -1,6 +1,7 @@
 from django.db import models
 from company.models import Company
 from django.utils import timezone
+import pytz
 
 class ClassOfStudent(models.Model):
     company = models.ForeignKey(
@@ -58,6 +59,9 @@ class Student(models.Model):
         verbose_name='Estudante'
         verbose_name_plural='Estudantes'
 
+def get_brasilia_time():
+    return timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()       
+
 class Call(models.Model):  
     student = models.ForeignKey(
         Student,
@@ -69,9 +73,9 @@ class Call(models.Model):
         default=False,
         verbose_name='Presente'
     )
-    date = models.DateTimeField(
+    date = models.DateField(
         verbose_name="Data/Cadastro",
-        default=timezone.now
+        default=get_brasilia_time
     )
     
     def __str__(self):

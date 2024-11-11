@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.db.models import F
 from datetime import date, timedelta
 import calendar
+import pytz
 
 class CallView(generics.GenericAPIView):
     serializer_class = CallSerializer
@@ -76,10 +77,10 @@ class StudentView(generics.GenericAPIView):
 
     def get(self, request, classId=None):
         # Obtendo a data atual
-        today = timezone.now().date()
+        today = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
 
         # Carregando todas as chamadas da data atual em uma única query
-        calls = Call.objects.filter(date__date=today).select_related('student')
+        calls = Call.objects.filter(date=today).select_related('student')
 
         # Criando um dicionário {student_id: call_object} para acesso rápido
         call_dict = {call.student.id: call for call in calls}
