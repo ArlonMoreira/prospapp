@@ -14,7 +14,7 @@ class CallSerializer(serializers.ModelSerializer):
 
     def save(self, **kwargs):
 
-        call = Call.objects.filter(student=self.validated_data.get('student'), date__date=timezone.localtime(timezone.now()))
+        call = Call.objects.filter(student=self.validated_data.get('student'), date__date=timezone.now().date())
 
         if call.exists():
             call = call.first()

@@ -71,7 +71,7 @@ class Call(models.Model):
     )
     date = models.DateTimeField(
         verbose_name="Data/Cadastro",
-        default=timezone.localtime(timezone.now())
+        default=timezone.now
     )
     
     def __str__(self):
