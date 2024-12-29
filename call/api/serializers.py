@@ -70,6 +70,7 @@ class ClassOfStudentSerializer(serializers.ModelSerializer):
         fields = ('id', 'name', 'company')
 
     def save(self, **kwargs):
+
         company = Company.objects.filter(id=self.validated_data.get('company')).first()
 
         classOfStudent = ClassOfStudent(
@@ -80,3 +81,21 @@ class ClassOfStudentSerializer(serializers.ModelSerializer):
         classOfStudent.save()
 
         return classOfStudent
+    
+class ClassOfStudentUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = ClassOfStudent
+        fields = ('id', 'name')
+
+    def save(self, **kwargs):
+
+        Class = self.instance.first()
+
+        Class.name = self.validated_data.get('name', Class.name)
+
+        Class.save()
+
+        return Class
+    
+

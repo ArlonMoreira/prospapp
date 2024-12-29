@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from call.api.serializers import ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
+from call.api.serializers import ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
 from django.db.models import F
 from datetime import date, timedelta
@@ -125,7 +125,7 @@ class ClassOfStudentView(generics.GenericAPIView):
         serializer = self.serializer_class(classOfStudent, many=True).data
 
         return Response({'message': 'Dados recuperados com sucesso', 'data': serializer}, status=status.HTTP_200_OK)
-
+    
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
         
@@ -135,3 +135,24 @@ class ClassOfStudentView(generics.GenericAPIView):
         data = self.serializer_class(serializer.save()).data
 
         return Response({'message': 'Turma registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+    
+class ClassOfStudentUpdateView(generics.GenericAPIView):
+    serializer_class = ClassOfStudentUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, Class=None):
+        
+        Class = ClassOfStudent.objects.filter(id=Class)
+        
+        if Class.exists():
+            serializer = self.serializer_class(Class, data=request.data)
+
+            if(not serializer.is_valid()):
+                return Response({'message': 'Falha ao atualizar dados da turma', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+            data = self.serializer_class(serializer.save()).data
+
+            return Response({'message': 'Dados da turma atualizado com sucesso.', 'data': data}, status=status.HTTP_200_OK)
+
+        else:
+            return Response({'message': 'Turma não localizada.'}, status=status.HTTP_404_NOT_FOUND)
