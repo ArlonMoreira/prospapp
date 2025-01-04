@@ -53,9 +53,9 @@ class PendingViews(generics.GenericAPIView):
         return self.send_response(request)
     
     @get_status_company
-    def send_response(self, request, *args, **kwargs):
+    def send_response(self, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)
     
     @get_status_company
-    def get(self, request, *args, **kwargs):
+    def get(self, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)

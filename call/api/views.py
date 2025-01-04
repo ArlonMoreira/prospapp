@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from call.api.serializers import ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
+from call.api.serializers import ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
 from django.db.models import F
 from datetime import date, timedelta
@@ -121,7 +121,7 @@ class ClassOfStudentView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, company=None):
-        classOfStudent = ClassOfStudent.objects.filter(company=company)   
+        classOfStudent = ClassOfStudent.objects.filter(company=company, is_active=True)   
         serializer = self.serializer_class(classOfStudent, many=True).data
 
         return Response({'message': 'Dados recuperados com sucesso', 'data': serializer}, status=status.HTTP_200_OK)
@@ -136,23 +136,38 @@ class ClassOfStudentView(generics.GenericAPIView):
 
         return Response({'message': 'Turma registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
     
+
+def ResponseUpdateClass(self, **kwargs):
+
+    Class = ClassOfStudent.objects.filter(id=kwargs['Class'])
+
+    if Class.exists():
+        serializer = self.serializer_class(Class, data=kwargs['request'].data)
+
+        if(not serializer.is_valid()):
+            return Response({'message': 'Falha ao atualizar dados da turma', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Dados da turma atualizado com sucesso.', 'data': data}, status=status.HTTP_200_OK)
+
+    else:
+        return Response({'message': 'Turma não localizada.'}, status=status.HTTP_404_NOT_FOUND)
+
+
 class ClassOfStudentUpdateView(generics.GenericAPIView):
     serializer_class = ClassOfStudentUpdateSerializer
     permission_classes = [IsAuthenticated]
 
     def put(self, request, Class=None):
         
-        Class = ClassOfStudent.objects.filter(id=Class)
-        
-        if Class.exists():
-            serializer = self.serializer_class(Class, data=request.data)
+        return ResponseUpdateClass(self, request=request, Class=Class)
 
-            if(not serializer.is_valid()):
-                return Response({'message': 'Falha ao atualizar dados da turma', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+class ClassOfStudentDisableView(generics.GenericAPIView):
+    serializer_class = ClassOfStudentDisableSerializer
+    permission_classes = [IsAuthenticated]
 
-            data = self.serializer_class(serializer.save()).data
+    def put(self, request, Class=None):
 
-            return Response({'message': 'Dados da turma atualizado com sucesso.', 'data': data}, status=status.HTTP_200_OK)
+        return ResponseUpdateClass(self, request=request, Class=Class)
 
-        else:
-            return Response({'message': 'Turma não localizada.'}, status=status.HTTP_404_NOT_FOUND)
