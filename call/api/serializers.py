@@ -57,6 +57,23 @@ class StudentSerializer(serializers.ModelSerializer):
         student.save()
 
         return student
+    
+class StudentUpdateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Student
+        fields = ('id', 'name', 'identification_number')
+
+    def save(self):
+
+        Student = self.instance.first()
+
+        Student.name = self.validated_data.get('name', Student.name)
+        Student.identification_number = self.validated_data.get('identification_number', Student.identification_number)
+
+        Student.save()
+
+        return Student
 
 class ClassOfStudentSerializer(serializers.ModelSerializer):
 
@@ -88,7 +105,7 @@ class ClassOfStudentUpdateSerializer(serializers.ModelSerializer):
         model = ClassOfStudent
         fields = ('id', 'name')
 
-    def save(self, **kwargs):
+    def save(self):
 
         Class = self.instance.first()
 
