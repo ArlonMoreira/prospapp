@@ -115,6 +115,30 @@ class ClassOfStudentUpdateSerializer(serializers.ModelSerializer):
 
         return Class
     
+class StudentDisableSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Student
+        fields = ('id', 'is_active')
+
+    def save(self, **kwargs):
+
+        Student = self.instance.first()
+
+        if Student.is_active:
+            Student.is_active = False
+
+            Student.save()
+
+            return Student
+        
+        Student.is_active = True
+
+        Student.save()
+
+        return Student
+    
+    
 class ClassOfStudentDisableSerializer(serializers.ModelSerializer):
 
     class Meta:

@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from call.api.serializers import StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
+from call.api.serializers import StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
 from django.db.models import F
 from datetime import date, timedelta
@@ -116,26 +116,36 @@ class StudentView(generics.GenericAPIView):
 
         return Response({'message': 'Aluno registrado com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
     
+def ResponseUpdateStudent(self, **kwargs):
+
+    student = Student.objects.filter(id=kwargs['student'])
+
+    if student.exists():
+        serializer = self.serializer_class(student, data=kwargs['request'].data)
+
+        if (not serializer.is_valid()):
+            return Response({'message': 'Falha ao cadastrar aluno', 'data':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Aluno registrado com sucesso', 'data': data}, status=status.HTTP_200_OK)        
+
+    return Response({'message': 'Aluno não localizado'}, status=status.HTTP_404_NOT_FOUND)
+    
 class StudentUpdateView(generics.GenericAPIView):
     serializer_class = StudentUpdateSerializer
     permission_classes = [IsAuthenticated]
 
     def put(self, request, student=None):
-
-        student = Student.objects.filter(id=student)
-
-        if student.exists():
-            serializer = self.serializer_class(student, data=request.data)
-
-            if (not serializer.is_valid()):
-                return Response({'message': 'Falha ao cadastrar aluno', 'data':serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-            data = self.serializer_class(serializer.save()).data
-
-            return Response({'message': 'Aluno registrado com sucesso', 'data': data}, status=status.HTTP_200_OK)        
-
-        return Response({'message': 'Aluno não localizado'}, status=status.HTTP_404_NOT_FOUND)
+        return ResponseUpdateStudent(self, request=request, student=student)
     
+class StudentDisableView(generics.GenericAPIView):
+    serializer_class = StudentDisableSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, student=None):
+        return ResponseUpdateStudent(self, request=request, student=student)
+
 class ClassOfStudentView(generics.GenericAPIView):
     serializer_class = ClassOfStudentSerializer
     permission_classes = [IsAuthenticated]
@@ -155,7 +165,6 @@ class ClassOfStudentView(generics.GenericAPIView):
         data = self.serializer_class(serializer.save()).data
 
         return Response({'message': 'Turma registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
-    
 
 def ResponseUpdateClass(self, **kwargs):
 
