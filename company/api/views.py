@@ -9,7 +9,7 @@ def get_status_company(function): #Seria como eu estivesse interceptandoa funç�
     @wraps(function)
     def wrap(self, request, *args, **kwargs): #Seria como eu estivesse instancia send_response aqui, passando os mesmos parâmetros
         companys = Company.objects.all()
-
+    
         result = []
         for company in companys:
             joined = CompanyPeople.objects.filter(company=company.id, user=request.user)
@@ -22,9 +22,9 @@ def get_status_company(function): #Seria como eu estivesse interceptandoa funç�
                 'is_joined': joined.first().is_joined if joined.exists() else False,
                 'is_pending': joined.first().is_pending if joined.exists() else False
             })
-            
+        
         kwargs['serializer'] = self.serializer_class(result, many=True).data    
-
+         
         return function(self, request, *args, **kwargs) #Seria como eu estivesse instancia send_response aqui, passando os mesmos parâmetros
     
     return wrap
@@ -53,9 +53,9 @@ class PendingViews(generics.GenericAPIView):
         return self.send_response(request)
     
     @get_status_company
-    def send_response(self, **kwargs):
+    def send_response(self, request, *args, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)
     
     @get_status_company
-    def get(self, **kwargs):
+    def get(self, request, *args, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)
