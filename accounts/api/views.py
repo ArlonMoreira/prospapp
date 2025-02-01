@@ -54,6 +54,7 @@ class MeView(generics.GenericAPIView):
         data = {
             'full_name': request.user.full_name,
             'doc_number': request.user.doc_number,
+            'email': request.email,
             'profileImage': request.user.profileImage.url if request.user.profileImage else settings.MEDIA_URL+'profiles/default_profile.png',
             'companys_joined': companys_joined
         }
