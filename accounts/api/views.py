@@ -66,20 +66,20 @@ class EditView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request):
-        me = Users.objects.filter(id=request.user.id)
+        try:
+            Me = Users.objects.get(id=request.user.id)
+        except Users.DoesNotExist:
+            return Response({'message': 'Falha ao encontrar o usuário'}, status=status.HTTP_404_NOT_FOUND)
 
-        if me.exists():
-            serializer = self.serializer_class(me, data=request.data)
+        serializer = self.serializer_class(Me, data=request.data, partial=True)  # 'partial=True' permite atualização parcial
 
-            if not serializer.is_valid():
-                return Response({'message': 'Falha ao alterar dados do usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-            
-            data = self.serializer_class(serializer.save()).data
+        if not serializer.is_valid():
+            return Response({'message': 'Falha ao alterar dados do usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save()
 
-            return Response({'message': 'Dados do usuário atualizado', 'data': data}, status=status.HTTP_200_OK)
-
-        return Response({'message': 'Falha ao encontrar o usuário'}, status=status.HTTP_404_NOT_FOUND)
-
+        return Response({'message': 'Dados do usuário atualizado', 'data': serializer.data}, status=status.HTTP_200_OK)
+    
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = []

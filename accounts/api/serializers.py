@@ -10,7 +10,7 @@ class EditSerializer(serializers.ModelSerializer):
         fields = ('email', 'full_name', 'doc_number')
 
     def save(self):
-        Me = self.instance.first()
+        Me = self.instance
 
         Me.email = self.validated_data.get('email', Me.email)
         Me.full_name = self.validated_data.get('full_name', Me.full_name)
