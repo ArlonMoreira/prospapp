@@ -3,6 +3,23 @@ from django.contrib.auth.password_validation import validate_password
 from accounts.models import Users
 from validate_docbr import CPF
 
+class EditSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Users
+        fields = ('email', 'full_name', 'doc_number')
+
+    def save(self):
+        Me = self.instance.first()
+
+        Me.email = self.validated_data.get('email', Me.email)
+        Me.full_name = self.validated_data.get('full_name', Me.full_name)
+        Me.doc_number = self.validated_data.get('foc_number', Me.doc_number)
+
+        Me.save()
+
+        return Me
+
 class RegisterSerializer(serializers.ModelSerializer):   
     password = serializers.CharField(
         write_only=True, #Não irá retornar na resposta da requisição, apenas leitura

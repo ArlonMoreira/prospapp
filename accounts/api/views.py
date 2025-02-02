@@ -7,7 +7,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .serializers import LoginSerializer, RegisterSerializer
+from .serializers import LoginSerializer, RegisterSerializer, EditSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
 from company.models import CompanyPeople
@@ -60,6 +60,25 @@ class MeView(generics.GenericAPIView):
         }
 
         return Response({'message': 'Dados obtidos com sucesso', 'data': data}, status=status.HTTP_200_OK)
+
+class EditView(generics.GenericAPIView):
+    serializer_class = EditSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request):
+        me = Users.objects.filter(id=request.user.id)
+
+        if me.exists():
+            serializer = self.serializer_class(me, data=request.data)
+
+            if not serializer.is_valid():
+                return Response({'message': 'Falha ao alterar dados do usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            
+            data = self.serializer_class(serializer.save()).data
+
+            return Response({'message': 'Dados do usuário atualizado', 'data': data}, status=status.HTTP_200_OK)
+
+        return Response({'message': 'Falha ao encontrar o usuário'}, status=status.HTTP_404_NOT_FOUND)
 
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
