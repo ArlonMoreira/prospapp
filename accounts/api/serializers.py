@@ -33,7 +33,6 @@ class RegisterSerializer(serializers.ModelSerializer):
     )
 
     def validate(self, attrs):
-        
         if attrs['password'] != attrs['confirm_password']:
             raise serializers.ValidationError({
                 'confirm_password': 'As senhas não coincidem'
@@ -59,12 +58,41 @@ class RegisterSerializer(serializers.ModelSerializer):
             full_name=validated_data['full_name'],
             doc_number=int(validated_data['doc_number'])
         )
-
+        
         user.set_password(validated_data['password'])
         user.save()
 
         return user
+    
+class ResetPasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]        
+    )
+    confirm_password = serializers.CharField(
+        write_only=True,
+        required=True,
+        validators=[validate_password]        
+    )
 
+    def validate(self, attrs):
+        if attrs['password'] != attrs['confirm_password']:
+            raise serializers.ValidationError({
+                'confirm_password': 'As senhas não coincidem'
+            })
+        return super().validate(attrs)
+
+    class Meta:
+        model = Users
+        fields = ('password', 'confirm_password')
+
+    def save(self, **kwargs):
+        User = self.instance
+        User.set_password(self.validated_data['password'])
+        User.save()
+
+        return User
 
 class LoginSerializer(serializers.ModelSerializer):
 

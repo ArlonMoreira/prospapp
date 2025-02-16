@@ -7,7 +7,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .serializers import LoginSerializer, RegisterSerializer, EditSerializer
+from .serializers import LoginSerializer, RegisterSerializer, EditSerializer, ResetPasswordSerializer
 from accounts.utils import get_token_for_user
 from accounts.models import Users
 from company.models import CompanyPeople
@@ -61,6 +61,21 @@ class MeView(generics.GenericAPIView):
 
         return Response({'message': 'Dados obtidos com sucesso', 'data': data}, status=status.HTTP_200_OK)
 
+class ResetPasswordView(generics.UpdateAPIView):
+    serializer_class = ResetPasswordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        User = Users.objects.get(id=request.user.id)
+        serializer = self.serializer_class(User, data=request.data, partial=True)
+
+        if not serializer.is_valid():
+            return Response({'message': 'Falha ao alterar a senha do usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+
+        return Response({'message': 'Senha alterada com sucesso'}, status=status.HTTP_200_OK)
+
 class EditView(generics.GenericAPIView):
     serializer_class = EditSerializer
     permission_classes = [IsAuthenticated]
@@ -85,7 +100,7 @@ class RegisterView(generics.GenericAPIView):
     permission_classes = []
     authentication_classes = []
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
 
         serializer = self.serializer_class(data=request.data)
         
