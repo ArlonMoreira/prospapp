@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
 from accounts.models import Users
+from company.models import CompanyPeople, Company
 from validate_docbr import CPF
 
 class EditSerializer(serializers.ModelSerializer):
@@ -61,6 +62,16 @@ class RegisterSerializer(serializers.ModelSerializer):
         
         user.set_password(validated_data['password'])
         user.save()
+
+        #Criar uma instância, colocando por padrão associando a Prospere com o usuário recém cadastrado
+        if(user):
+            companyPeople = CompanyPeople(
+                user=user,
+                company=Company.objects.filter(id=1),
+                is_joined=True
+            )
+
+            companyPeople.save()
 
         return user
     

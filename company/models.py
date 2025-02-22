@@ -70,7 +70,6 @@ class CompanyPeople(models.Model):
         Company,
         on_delete=models.SET_NULL,
         null=True,
-        default=1,
         verbose_name='Empresa')
     role = models.CharField(
         verbose_name="Perfil",
@@ -82,7 +81,7 @@ class CompanyPeople(models.Model):
     )
     is_joined = models.BooleanField(
         verbose_name="Ingressou",
-        default=True
+        default=False
     )
     is_pending = models.BooleanField(
         verbose_name="Aguardando",
