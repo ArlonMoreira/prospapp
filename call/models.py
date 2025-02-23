@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinLengthValidator
 from company.models import Company
 from django.utils import timezone
 import pytz
@@ -36,10 +37,17 @@ class Student(models.Model):
         null=False,
         blank=False
     )    
-    identification_number = models.BigIntegerField(
-        verbose_name='CPF',
+    identification_number = models.CharField(
+        verbose_name="CPF",
+        max_length=11,
+        validators=[MinLengthValidator(11)],
+        blank=False,
         null=False,
-        blank=False
+        error_messages={
+            'invalid': 'CPF inválido',
+            'required': 'O campo CPF é obrigatório',
+            'unique': 'CPF já cadastrado'      
+        }  
     )
     classOfStudent = models.ForeignKey(
         ClassOfStudent,

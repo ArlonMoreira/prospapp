@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from call.models import ClassOfStudent, Company, Student, Call
 from django.utils import timezone
+from validate_docbr import CPF
 import pytz
 
 class CallSerializer(serializers.ModelSerializer):
@@ -44,6 +45,13 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Student
         fields = ('id', 'name', 'identification_number', 'classId', 'present', 'date')
+
+    def validate_identification_number(self, value):
+        cpf = CPF()
+        if not cpf.validate(value):
+            raise serializers.ValidationError('CPF inválido')
+        
+        return value        
 
     def save(self, **kwargs):
         classOfStudent = ClassOfStudent.objects.filter(id=self.validated_data.get('classId')).first()
