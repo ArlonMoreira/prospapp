@@ -67,7 +67,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         if(user):
             companyPeople = CompanyPeople(
                 user=user,
-                company=Company.objects.filter(id=1),
+                company=Company.objects.filter(id=1)[0],
                 is_joined=True
             )
 
