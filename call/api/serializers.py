@@ -72,12 +72,19 @@ class StudentUpdateSerializer(serializers.ModelSerializer):
         model = Student
         fields = ('id', 'name', 'identification_number')
 
+    def validate_identification_number(self, value):
+        cpf = CPF()
+        if not cpf.validate(value):
+            raise serializers.ValidationError('CPF inválido')
+        
+        return value        
+
     def save(self):
 
         Student = self.instance.first()
 
         Student.name = self.validated_data.get('name', Student.name)
-        Student.identification_number = self.validated_data.get('identification_number', Student.identification_number)
+        Student.identification_number = self.validated_data.get('identification_number')
 
         Student.save()
 
