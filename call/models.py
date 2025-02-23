@@ -41,8 +41,8 @@ class Student(models.Model):
         verbose_name="CPF",
         max_length=11,
         validators=[MinLengthValidator(11)],
-        blank=False,
-        null=False,
+        blank=True,
+        null=True,
         error_messages={
             'invalid': 'CPF inválido',
             'required': 'O campo CPF é obrigatório',
