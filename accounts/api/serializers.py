@@ -47,7 +47,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate_doc_number(self, value):
         cpf = CPF()
-        if not cpf.validate(value):
+        if value and not cpf.validate(value):
             raise serializers.ValidationError('CPF inválido')
         
         return value
