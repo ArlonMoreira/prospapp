@@ -75,12 +75,12 @@ class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, classId=None):
+    def get(self, request, classId=None, date=timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()):
         # Obtendo a data atual
-        today = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
+        # today = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
 
         # Carregando todas as chamadas da data atual em uma única query
-        calls = Call.objects.filter(date=today).select_related('student')
+        calls = Call.objects.filter(date=date).select_related('student')
 
         # Criando um dicionário {student_id: call_object} para acesso rápido
         call_dict = {call.student.id: call for call in calls}
