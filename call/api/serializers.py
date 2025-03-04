@@ -5,7 +5,6 @@ from validate_docbr import CPF
 import pytz
 
 class CallSerializer(serializers.ModelSerializer):
-    date = serializers.SerializerMethodField()
 
     class Meta:
         model = Call
@@ -15,20 +14,19 @@ class CallSerializer(serializers.ModelSerializer):
         return obj.date.strftime('%Y-%m-%d')        
 
     def save(self, **kwargs):
-       
         call = Call.objects.filter(student=self.validated_data.get('student'), date=self.validated_data.get('date') )
         
         if call.exists():
             call = call.first()
             call.present = self.validated_data.get('present')
-            print('if-call', call)
+
         else:
             call = Call(
                 student=self.validated_data.get('student'),
                 present=self.validated_data.get('present'),
                 date=self.validated_data.get('date')
             )
-            print('else-call', call)
+
         call.save()
 
         return call
