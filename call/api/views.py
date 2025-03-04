@@ -75,9 +75,12 @@ class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, classId=None, date=timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()):
+    def get(self, request, classId=None):
         # Obtendo a data atual
-        # today = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
+        if not request.data['date']:
+            date = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
+        else:
+            date = request.data['date']
 
         # Carregando todas as chamadas da data atual em uma única query
         calls = Call.objects.filter(date=date).select_related('student')
@@ -99,7 +102,7 @@ class StudentView(generics.GenericAPIView):
                 row['date'] = student_call.date.strftime('%Y-%m-%d')
             else:
                 row['present'] = None
-                row['date'] = None             
+                row['date'] = date             
 
         return Response({'message': 'Dados recuperados com sucesso', 'data': serializer}, status=status.HTTP_200_OK)
 
