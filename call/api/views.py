@@ -78,7 +78,6 @@ class StudentView(generics.GenericAPIView):
 
     def get(self, request, classId=None, date=None):
         # Obtendo a data atual
-        print('teste', date)
         if date is None:
             date = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
         else:

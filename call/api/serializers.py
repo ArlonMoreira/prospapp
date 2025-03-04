@@ -21,14 +21,14 @@ class CallSerializer(serializers.ModelSerializer):
         if call.exists():
             call = call.first()
             call.present = self.validated_data.get('present')
-
+            print('if-call', call)
         else:
             call = Call(
                 student=self.validated_data.get('student'),
                 present=self.validated_data.get('present'),
-                date=self.validated_data.get('date', timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date())
+                date=self.validated_data.get('date')
             )
-
+            print('else-call', call)
         call.save()
 
         return call
