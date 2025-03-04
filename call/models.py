@@ -58,7 +58,12 @@ class Student(models.Model):
     is_active = models.BooleanField(
         verbose_name="Ativo",
         default=True
-    )    
+    )
+    date_disable = models.DateTimeField(
+        verbose_name="Data/Desativação",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return self.name
@@ -85,9 +90,6 @@ class Call(models.Model):
         verbose_name="Data/Cadastro",
         default=get_brasilia_time
     )
-    
-    def __str__(self):
-        return self.student.name 
 
     class Meta:
         verbose_name='Chamada'

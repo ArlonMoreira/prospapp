@@ -139,7 +139,7 @@ class StudentDisableSerializer(serializers.ModelSerializer):
 
         if Student.is_active:
             Student.is_active = False
-
+            Student.date_disable = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
             Student.save()
 
             return Student
