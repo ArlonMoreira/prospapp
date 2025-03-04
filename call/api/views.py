@@ -20,7 +20,6 @@ class CallView(generics.GenericAPIView):
         
         #Percorre a lista de chamada passada no formato {student: 29, present: true}, percorre essa lista, armazena as respostas em responses.
         for item in request.data:
-            print(item)
             serializer = self.serializer_class(data=item)
 
             if(not serializer.is_valid()):

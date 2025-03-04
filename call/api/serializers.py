@@ -14,20 +14,19 @@ class CallSerializer(serializers.ModelSerializer):
         return obj.date.strftime('%Y-%m-%d')        
 
     def save(self, **kwargs):
-        call = Call.objects.filter(student=self.validated_data.get('student'), date=self.validated_data.get('date') )
-        
+        student = self.validated_data.get('student')
+        date = self.validated_data.get('date')
+        present = self.validated_data.get('present')
+
+        call = Call.objects.filter(student=student, date=date)
+
         if call.exists():
-            call = call.first()
-            call.present = self.validated_data.get('present')
+            # Atualiza diretamente no banco
+            call.update(present=present)
+            call = call.first()  # Obtém a instância atualizada
 
         else:
-            call = Call(
-                student=self.validated_data.get('student'),
-                present=self.validated_data.get('present'),
-                date=self.validated_data.get('date')
-            )
-
-        call.save()
+            call = Call.objects.create(student=student, present=present, date=date)
 
         return call
 
