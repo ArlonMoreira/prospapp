@@ -4,7 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from call.api.serializers import StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
 from django.db.models import F
-from datetime import date, timedelta
+from datetime import date, timedelta, datetime
 import calendar
 import pytz
 
@@ -75,12 +75,13 @@ class StudentView(generics.GenericAPIView):
     serializer_class = StudentSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, classId=None):
+    def get(self, request, classId=None, date=None):
         # Obtendo a data atual
-        if not request.data['date']:
+        print('teste', date)
+        if date is None:
             date = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
         else:
-            date = request.data['date']
+            date = datetime.strptime(date, "%Y%m%d").strftime("%Y-%m-%d")
 
         # Carregando todas as chamadas da data atual em uma única query
         calls = Call.objects.filter(date=date).select_related('student')

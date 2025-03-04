@@ -5,7 +5,7 @@ urlpatterns = [
     re_path('call/register/', CallView.as_view()),
     re_path('call/report/(?P<classId>\d+)/(?P<year>\d+)/(?P<month>\d+)/$', ReportCallView.as_view()),
     re_path('student/register/', StudentView.as_view()),
-    re_path('student/list/(?P<classId>\d+)/$', StudentView.as_view()),
+    re_path(r'^student/list/(?P<classId>\d+)(?:/(?P<date>\d+))?/$', StudentView.as_view()),
     re_path('student/change/(?P<student>\d+)/$', StudentUpdateView.as_view()),
     re_path('student/disabled/(?P<student>\d+)/$', StudentDisableView.as_view()),
     re_path('class/register/', ClassOfStudentView.as_view()),
