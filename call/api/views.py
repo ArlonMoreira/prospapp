@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from call.api.serializers import StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from django.utils import timezone
-from django.db.models import F
+from django.db.models import F, Q
 from datetime import date, timedelta, datetime
 import calendar
 import pytz
@@ -81,15 +81,15 @@ class StudentView(generics.GenericAPIView):
             date = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date()
         else:
             date = datetime.strptime(date, "%Y%m%d").strftime("%Y-%m-%d")
-
+        
         # Carregando todas as chamadas da data atual em uma única query
         calls = Call.objects.filter(date=date).select_related('student')
 
         # Criando um dicionário {student_id: call_object} para acesso rápido
         call_dict = {call.student.id: call for call in calls}
-
+        
         # Filtrando os estudantes da turma específica e que estão ativos
-        students = Student.objects.filter(classOfStudent=classId, date_disable__gte=date)
+        students = Student.objects.filter(classOfStudent=classId).exclude(date_disable__lte=date)
 
         # Serializando os estudantes
         serializer = self.serializer_class(students, many=True).data
