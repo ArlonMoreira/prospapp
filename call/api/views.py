@@ -89,7 +89,7 @@ class StudentView(generics.GenericAPIView):
         call_dict = {call.student.id: call for call in calls}
 
         # Filtrando os estudantes da turma específica e que estão ativos
-        students = Student.objects.filter(classOfStudent=classId, is_active=True)
+        students = Student.objects.filter(classOfStudent=classId, date_disable__gte=date)
 
         # Serializando os estudantes
         serializer = self.serializer_class(students, many=True).data

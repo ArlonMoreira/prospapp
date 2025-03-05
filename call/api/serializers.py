@@ -145,6 +145,7 @@ class StudentDisableSerializer(serializers.ModelSerializer):
             return Student
         
         Student.is_active = True
+        Student.date_disable = None
 
         Student.save()
 
