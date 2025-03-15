@@ -44,10 +44,9 @@ class MeView(generics.GenericAPIView):
             slug_name=F('company__slug_name'),
             logo=F('company__logo'),
             primary_color=F('company__primary_color'),
-            secundary_color=F('company__secundary_color'),
-            is_staff=F('user__is_staff')
+            secundary_color=F('company__secundary_color')
         ).values(
-            'company_id_annotated', 'slug_name', 'logo', 'role', 'primary_color', 'secundary_color', 'is_joined', 'is_pending', 'is_staff'
+            'company_id_annotated', 'slug_name', 'logo', 'role', 'primary_color', 'secundary_color', 'is_joined', 'is_pending'
         )
 
         companys_joined = list(companys)
@@ -57,7 +56,8 @@ class MeView(generics.GenericAPIView):
             'doc_number': request.user.doc_number,
             'email': request.user.email,
             'profileImage': request.user.profileImage.url if request.user.profileImage else settings.MEDIA_URL+'profiles/default_profile.png',
-            'companys_joined': companys_joined
+            'companys_joined': companys_joined,
+            'is_staff': request.user.is_staff
         }
 
         return Response({'message': 'Dados obtidos com sucesso', 'data': data}, status=status.HTTP_200_OK)
