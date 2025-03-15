@@ -64,14 +64,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         #Criar uma instância, colocando por padrão associando a Prospere com o usuário recém cadastrado
-        if(user):
-            companyPeople = CompanyPeople(
-                user=user,
-                company=Company.objects.filter(id=1)[0],
-                is_joined=True
-            )
+        # if(user):
+        #     companyPeople = CompanyPeople(
+        #         user=user,
+        #         company=Company.objects.filter(id=1)[0],
+        #         is_joined=True
+        #     )
 
-            companyPeople.save()
+        #     companyPeople.save()
 
         return user
     

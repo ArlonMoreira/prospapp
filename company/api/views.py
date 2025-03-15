@@ -1,9 +1,10 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PendingSerializer
+from .serializers import PendingSerializer, UsersPendingSerializer
 from ..models import Company, CompanyPeople
 from functools import wraps
+from django.db.models import F 
 
 def get_status_company(function): #Seria como eu estivesse interceptandoa função send_response
     @wraps(function)
@@ -34,7 +35,6 @@ class PendingViews(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def put(self, request, *args, **kwargs):
-
         companyPeople = CompanyPeople.objects.filter(user=request.user, company=request.data['company'])
         serializer = None
 
@@ -59,3 +59,29 @@ class PendingViews(generics.GenericAPIView):
     @get_status_company
     def get(self, request, *args, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)
+
+class UsersPendingViews(generics.GenericAPIView):
+    serializer_class = UsersPendingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, companyId=None):
+        company = Company.objects.filter(id=companyId)
+        if company.exists():
+            companyPeople = CompanyPeople.objects.filter(company=company.first().id).exclude(user=request.user)
+            userRole = CompanyPeople.objects.filter(user=request.user, company=company.first().id).first()
+            
+            if userRole.role == 'Gestor' or request.user.is_staff:
+                companyPeople = companyPeople \
+                    .values('role', 'is_joined', 'is_pending') \
+                    .annotate(full_name=F('user__full_name')) \
+                    .annotate(doc_number=F('user__doc_number')) \
+                    .annotate(email=F('user__email'))
+
+                companyPeople = self.serializer_class(companyPeople, many=True).data
+
+                return Response({'message': 'Usuários retornados com sucesso', 'data': companyPeople}, status=status.HTTP_200_OK)
+            else:
+                return Response({'message': 'O usuário não tem autorização para acessar essa área'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        else:
+            return Response({'message': 'Empresa não localizada'}, status=status.HTTP_404_NOT_FOUND)

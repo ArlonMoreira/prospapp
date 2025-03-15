@@ -30,3 +30,14 @@ class PendingSerializer(serializers.ModelSerializer):
             companyPeople.save()
         
         return companyPeople
+    
+class UsersPendingSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(required=False)
+    doc_number = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+    
+    class Meta:
+        model = CompanyPeople
+        fields = ('full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
+
+

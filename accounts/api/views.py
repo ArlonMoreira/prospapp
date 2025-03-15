@@ -44,9 +44,10 @@ class MeView(generics.GenericAPIView):
             slug_name=F('company__slug_name'),
             logo=F('company__logo'),
             primary_color=F('company__primary_color'),
-            secundary_color=F('company__secundary_color')
+            secundary_color=F('company__secundary_color'),
+            is_staff=F('user__is_staff')
         ).values(
-            'company_id_annotated', 'slug_name', 'logo', 'role', 'primary_color', 'secundary_color', 'is_joined', 'is_pending'
+            'company_id_annotated', 'slug_name', 'logo', 'role', 'primary_color', 'secundary_color', 'is_joined', 'is_pending', 'is_staff'
         )
 
         companys_joined = list(companys)
