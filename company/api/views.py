@@ -1,7 +1,7 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import PendingSerializer, UsersPendingSerializer
+from .serializers import PendingSerializer, UsersPendingSerializer, UsersPendingUpdateSerializer
 from ..models import Company, CompanyPeople
 from functools import wraps
 from django.db.models import F 
@@ -59,6 +59,33 @@ class PendingViews(generics.GenericAPIView):
     @get_status_company
     def get(self, request, *args, **kwargs):
         return Response({'message': 'Dados retornados com sucesso', 'data': kwargs['serializer']}, status=status.HTTP_200_OK)
+
+class UsersPendingUpdateViews(generics.GenericAPIView):
+    serializer_class = UsersPendingUpdateSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, companyId=None, userId=None):
+        companyPeople = CompanyPeople.objects.filter(user=userId, company=companyId)
+        if companyPeople.exists():
+            serializer = self.serializer_class(companyPeople, data=request.data)
+
+            if(not serializer.is_valid()):
+                return Response({'message': 'Falha ao atualizar a situação do usuário na empresa', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+            serializer.save()
+            
+            companysPeople = CompanyPeople.objects.filter(company=companyId).exclude(user=request.user)
+            companysPeople = companysPeople \
+                .values('role', 'is_joined', 'is_pending') \
+                .annotate(full_name=F('user__full_name')) \
+                .annotate(doc_number=F('user__doc_number')) \
+                .annotate(email=F('user__email'))
+
+            data = self.serializer_class(companysPeople, many=True).data
+
+            return Response({'message': 'asdad.', 'data': data}, status=status.HTTP_201_CREATED)
+
+        return Response({'message': 'O usuário não está relacionado a empresa.'}, status=status.HTTP_404_NOT_FOUND)
 
 class UsersPendingViews(generics.GenericAPIView):
     serializer_class = UsersPendingSerializer

@@ -39,5 +39,26 @@ class UsersPendingSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompanyPeople
         fields = ('full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
+    
+class UsersPendingUpdateSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(required=False)
+    doc_number = serializers.CharField(required=False)
+    email = serializers.CharField(required=False)
+    
+    class Meta:
+        model = CompanyPeople
+        fields = ('full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
+
+    def save(self, **kwargs):
+        companyPeople = self.instance
+
+        if(companyPeople):
+            companyPeople = companyPeople.first()
+            companyPeople.role = self.validated_data.get('role', companyPeople.role)
+            companyPeople.is_joined = self.validated_data.get('is_joined', companyPeople.is_joined)
+            companyPeople.is_pending = self.validated_data.get('is_pending', companyPeople.is_pending)
+            companyPeople.save()
+
+        return companyPeople
 
 
