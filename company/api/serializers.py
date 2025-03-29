@@ -38,7 +38,7 @@ class UsersPendingSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CompanyPeople
-        fields = ('full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
+        fields = ('user_id', 'company_id', 'full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
     
 class UsersPendingUpdateSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(required=False)
@@ -47,7 +47,7 @@ class UsersPendingUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = CompanyPeople
-        fields = ('full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
+        fields = ('user_id', 'company_id', 'full_name', 'doc_number', 'email', 'role', 'is_joined', 'is_pending')
 
     def save(self, **kwargs):
         companyPeople = self.instance

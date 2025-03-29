@@ -77,13 +77,15 @@ class UsersPendingUpdateViews(generics.GenericAPIView):
             companysPeople = CompanyPeople.objects.filter(company=companyId).exclude(user=request.user)
             companysPeople = companysPeople \
                 .values('role', 'is_joined', 'is_pending') \
+                .annotate(user_id=F('user__id')) \
+                .annotate(company_id=F('company__id')) \
                 .annotate(full_name=F('user__full_name')) \
                 .annotate(doc_number=F('user__doc_number')) \
                 .annotate(email=F('user__email'))
 
             data = self.serializer_class(companysPeople, many=True).data
 
-            return Response({'message': 'asdad.', 'data': data}, status=status.HTTP_201_CREATED)
+            return Response({'message': 'Dados do usuário atualizado com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
 
         return Response({'message': 'O usuário não está relacionado a empresa.'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -100,6 +102,8 @@ class UsersPendingViews(generics.GenericAPIView):
             if userRole.role == 'Gestor' or request.user.is_staff:
                 companyPeople = companyPeople \
                     .values('role', 'is_joined', 'is_pending') \
+                    .annotate(user_id=F('user__id')) \
+                    .annotate(company_id=F('company__id')) \
                     .annotate(full_name=F('user__full_name')) \
                     .annotate(doc_number=F('user__doc_number')) \
                     .annotate(email=F('user__email'))
