@@ -108,3 +108,12 @@ class Users(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Usuário'
         verbose_name_plural = 'Usuários'
+
+class VerificationCode(models.Model):
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    code = models.CharField(max_length=6)
+    created_in = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Código de verificação'
+        verbose_name_plural = 'Códigos de verificação'    

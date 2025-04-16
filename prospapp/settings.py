@@ -175,3 +175,12 @@ MEDIA_URL = '/files/' #Caminho pelo qual as imagens são visualizadas por URL
 AUTH_PROFILE_MODULE = 'accounts.Users'
 
 AUTH_USER_MODEL = 'accounts.Users'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER_PROSPAPP']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD_PROSPAPP']
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

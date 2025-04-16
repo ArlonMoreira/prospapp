@@ -7,11 +7,12 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate, login, logout
 from django.db.models import F
-from .serializers import LoginSerializer, RegisterSerializer, EditSerializer, ResetPasswordSerializer
+from .serializers import LoginSerializer, RegisterSerializer, EditSerializer, ResetPasswordSerializer, RegisterVerificationSerializer
 from accounts.utils import get_token_for_user
-from accounts.models import Users
+from accounts.models import Users, VerificationCode
 from company.models import CompanyPeople
 from django.conf import settings
+from accounts.utils import generated_random_code, send_code_mail
 import logging
 
 logger = logging.getLogger(__name__)
@@ -96,6 +97,53 @@ class EditView(generics.GenericAPIView):
 
         return Response({'message': 'Dados do usuário atualizado', 'data': serializer.data}, status=status.HTTP_200_OK)
     
+
+class CheckVerificationView(APIView):
+    permission_classes = []
+    authentication_classes = []    
+
+    def post(self, request):
+        code = request.data['code']
+        email = request.data['email']
+
+        User = Users.objects.filter(email=email).first()
+        if not User:
+            return Response({'message': 'Usuário não cadastrado.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        instance_code = VerificationCode.objects.filter(user=User, code=code)
+
+        if not instance_code.exists():
+            return Response({'message': 'Código de verificação inválido.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        User.is_active = True
+        User.save()
+        instance_code.delete()
+
+        return Response({'message': 'Código de verificação válido.'}, status=status.HTTP_200_OK)
+    
+class RegisterVerificationView(generics.GenericAPIView):
+    serializer_class = RegisterVerificationSerializer
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+
+        serializer = self.serializer_class(data=request.data)
+     
+        #Validar formulário de cadastro
+        if not serializer.is_valid():
+            return Response({'message': 'Falha ao cadastrar usuário', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        #Obter os dados cadastrados
+        data = self.serializer_class(serializer.save()).data
+
+        user = Users.objects.filter(email=data['email']).first()
+        VerificationCode = generated_random_code(user)
+
+        send_code_mail(user, VerificationCode.code)
+
+        return Response({'message': 'Usuário cadastrado', 'data': data}, status=status.HTTP_201_CREATED)
+    
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisterSerializer
     permission_classes = []
@@ -158,18 +206,24 @@ class LoginView(generics.GenericAPIView):
             return Response({'message': 'Usuário não cadastrado', 'data': serializer.errors}, status=status.HTTP_401_UNAUTHORIZED)
         
         data = serializer.data
+        user_data = Users.objects.filter(email=data['email'])
+        
+        if user_data.exists() and not user_data.first().is_active:
+            return Response({'message': 'O usuário não está ativo', 'data': []}, status=status.HTTP_401_UNAUTHORIZED) 
 
         #Autenticação
         user = authenticate(email=data['email'].lower().strip(), password=data['password'])
+        
         #Se autenticado
         if user is not None:
             #Realizar login
-            login(request, user)
+            l = login(request, user)
             #Obter token
+
             data = get_token_for_user(user)
 
             return Response({'message': 'Autenticação realizada com sucesso', 'data': data}, status=status.HTTP_200_OK)
-
+                
         return Response({
             'message': 'Usuário ou senha inválidos',
             'data': [
