@@ -24,6 +24,9 @@ def get_token_for_user(user):
 def generated_random_code(user):
     numbers = get_random_string(length=6, allowed_chars='0123456789')
 
+    # Antes de criar uma nova instância, deletar todos os códigos que já existiam pra determinado usuário.
+    VerificationCode.objects.filter(user=user).delete()
+
     instance = VerificationCode.objects.create(
         user=user,
         code=numbers

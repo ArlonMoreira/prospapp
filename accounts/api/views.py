@@ -119,7 +119,29 @@ class CheckVerificationView(APIView):
         User.save()
         instance_code.delete()
 
-        return Response({'message': 'Código de verificação válido.'}, status=status.HTTP_200_OK)
+        login(request, User)
+        #Obter token
+
+        data = get_token_for_user(User)
+
+        return Response({'message': 'Autenticação realizada com sucesso', 'data': data}, status=status.HTTP_200_OK)
+    
+class GenerateCodeAgainView(APIView):
+    permission_classes = []
+    authentication_classes = []
+
+    def post(self, request):
+        try:
+            user = Users.objects.filter(email=request.data['email']).first()
+            VerificationCode = generated_random_code(user)
+
+            send_code_mail(user, VerificationCode.code)
+
+            return Response({'message': 'Código de verificação reenviado.', 'data': []}, status=status.HTTP_201_CREATED)
+    
+        except:
+            return Response({'message': 'Falha ao gerar código de verificação.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+
     
 class RegisterVerificationView(generics.GenericAPIView):
     serializer_class = RegisterVerificationSerializer
@@ -217,7 +239,7 @@ class LoginView(generics.GenericAPIView):
         #Se autenticado
         if user is not None:
             #Realizar login
-            l = login(request, user)
+            login(request, user)
             #Obter token
 
             data = get_token_for_user(user)
