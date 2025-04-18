@@ -97,7 +97,6 @@ class EditView(generics.GenericAPIView):
 
         return Response({'message': 'Dados do usuário atualizado', 'data': serializer.data}, status=status.HTTP_200_OK)
     
-
 class CheckVerificationView(APIView):
     permission_classes = []
     authentication_classes = []    
@@ -142,13 +141,18 @@ class GenerateCodeAgainView(APIView):
         except:
             return Response({'message': 'Falha ao gerar código de verificação.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
 
-    
 class RegisterVerificationView(generics.GenericAPIView):
     serializer_class = RegisterVerificationSerializer
     permission_classes = []
     authentication_classes = []
 
     def post(self, request):
+        #Obter uma instância inativa do usuário
+        instance_user = Users.objects.filter(email=request.data['email'].lower().strip(), is_active=False)
+
+        #Caso tiver algum usuário que esteja aguardando por verificação vou deletar a instância existente e permitir a criação de uma nova instância.
+        if instance_user.exists() and VerificationCode.objects.filter(user=instance_user.first()).exists():
+            instance_user.delete()        
 
         serializer = self.serializer_class(data=request.data)
      
@@ -160,9 +164,9 @@ class RegisterVerificationView(generics.GenericAPIView):
         data = self.serializer_class(serializer.save()).data
 
         user = Users.objects.filter(email=data['email']).first()
-        VerificationCode = generated_random_code(user)
+        verificationCode = generated_random_code(user)
 
-        send_code_mail(user, VerificationCode.code)
+        send_code_mail(user, verificationCode.code)
 
         return Response({'message': 'Usuário cadastrado', 'data': data}, status=status.HTTP_201_CREATED)
     

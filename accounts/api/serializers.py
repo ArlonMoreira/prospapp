@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth.password_validation import validate_password
-from accounts.models import Users
-from company.models import CompanyPeople, Company
+from accounts.models import Users, VerificationCode
 from validate_docbr import CPF
 
 class EditSerializer(serializers.ModelSerializer):
@@ -53,7 +52,6 @@ class RegisterVerificationSerializer(serializers.ModelSerializer):
         return value
     
     def create(self, validated_data):
-
         user = Users.objects.create(
             email=validated_data['email'].lower().strip(),
             full_name=validated_data['full_name'],
