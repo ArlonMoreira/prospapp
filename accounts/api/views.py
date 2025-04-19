@@ -102,8 +102,15 @@ class CheckVerificationView(APIView):
     authentication_classes = []    
 
     def post(self, request):
-        code = request.data['code']
-        email = request.data['email']
+        try:
+            code = request.data['code']
+        except:
+            return Response({'message': 'Código de verificação não informado.'}, status=status.HTTP_400_BAD_REQUEST)
+                        
+        try:
+            email = request.data['email']
+        except:
+            return Response({'message': 'E-mail de verificação não informado.'}, status=status.HTTP_400_BAD_REQUEST)
 
         User = Users.objects.filter(email=email).first()
         if not User:
