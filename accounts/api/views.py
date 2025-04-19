@@ -102,6 +102,9 @@ class CheckVerificationView(APIView):
     authentication_classes = []    
 
     def post(self, request):
+
+        recover_password = request.data.get('recover_password', False)
+
         try:
             code = request.data['code']
         except:
@@ -115,6 +118,9 @@ class CheckVerificationView(APIView):
         User = Users.objects.filter(email=email).first()
         if not User:
             return Response({'message': 'Usuário não cadastrado.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if recover_password == True and User.is_active == False:
+            return Response({'message': 'Não é possível recuperar o acesso de um usuário inativo.'}, status=status.HTTP_400_BAD_REQUEST)
         
         instance_code = VerificationCode.objects.filter(user=User, code=code)
 
@@ -129,6 +135,8 @@ class CheckVerificationView(APIView):
         #Obter token
 
         data = get_token_for_user(User)
+
+        data['recover_password'] = recover_password
 
         return Response({'message': 'Autenticação realizada com sucesso', 'data': data}, status=status.HTTP_200_OK)
     
