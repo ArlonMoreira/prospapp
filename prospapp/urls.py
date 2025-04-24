@@ -24,5 +24,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('user/', include('accounts.api.url')),
     path('companys/', include('company.api.url')),
-    path('call/', include('call.api.url'))
+    path('call/', include('call.api.url')),
+    path('point/', include('point.api.url'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) #static(URL, local de storage dos arquivos)
