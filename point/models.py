@@ -1,4 +1,5 @@
 from django.db import models
+from company.models import Company
 
 # Create your models here.
 class Local(models.Model):
@@ -16,12 +17,14 @@ class Local(models.Model):
     workload_hour = models.IntegerField(
         verbose_name='Carga Horária/Hora',
         blank=False,
-        null=False   
+        null=False,
+        default=0
     )    
     workload_minutes = models.IntegerField(
         verbose_name='Carga Horária/Minutos',
         blank=False,
-        null=False       
+        null=False,
+        default=0      
     )
     is_active = models.IntegerField(
         verbose_name='Ativa',
@@ -29,6 +32,13 @@ class Local(models.Model):
         null=False,
         default=True
     )
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.SET_NULL,
+        blank=False,
+        null=True,
+        verbose_name='Empresa'
+    )    
 
     def __str__(self):
         return self.name
