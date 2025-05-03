@@ -18,19 +18,21 @@ class Local(models.Model):
         verbose_name='Carga Horária/Hora',
         blank=False,
         null=False,
-        default=0
+        default=0,
+        max_length=23
     )    
     workload_minutes = models.IntegerField(
         verbose_name='Carga Horária/Minutos',
         blank=False,
         null=False,
-        default=0      
+        default=0,
+        max_length=59    
     )
     is_active = models.IntegerField(
         verbose_name='Ativa',
         blank=False,
         null=False,
-        default=True
+        default=True,
     )
     company = models.ForeignKey(
         Company,

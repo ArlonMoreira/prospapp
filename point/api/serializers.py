@@ -8,7 +8,7 @@ class LocalSerialier(serializers.ModelSerializer):
 
     class Meta:
         model = Local
-        fields = ('name', 'identification_number', 'workload_hour', 'workload_minutes', 'company')
+        fields = ('id', 'name', 'identification_number', 'workload_hour', 'workload_minutes', 'company')
 
     def save(self, **kwargs):
         local = Local(
