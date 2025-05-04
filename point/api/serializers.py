@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..models import Local
+from ..models import Local, Points
 from company.models import Company
 
 class LocalSerialier(serializers.ModelSerializer):
@@ -22,3 +22,13 @@ class LocalSerialier(serializers.ModelSerializer):
         local.save()
 
         return local
+    
+class PointsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Points
+        fields = ('id', 'user', 'local', 'date', 'entry_datetime', 'exit_datetime')
+        read_only_fields = ('user', 'local', 'date', 'entry_datetime', 'exit_datetime')
+
+    def get_date(self, obj):
+        return obj.entry_datetime.date() if obj.entry_datetime else None        
