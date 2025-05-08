@@ -91,6 +91,26 @@ class RegisterPointActualView(generics.GenericAPIView):
 
         return Response({'message': 'Consulta realizada com sucesso.', 'data': data}, status=status.HTTP_200_OK)
 
+class RemovePointTodayView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = PointsSerializer
+
+    def delete(self, request, pointId=None):
+        now = timezone.localtime(timezone.now())
+        today = now.date()  
+
+        point = Points.objects.filter(id=pointId, date=today).first()
+
+        if not point:
+            return Response({'message': 'Ponto não encontrado.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+         
+        serializer = self.serializer_class(point)
+        data = serializer.data  # salva os dados antes da deleção
+
+        point.delete()
+
+        return Response({'message': 'Ponto eletrônico removido.', 'data': data}, status=status.HTTP_200_OK)
+
 class RegisterPointView(APIView):
     permission_classes = [IsAuthenticated]
 
