@@ -8,7 +8,7 @@ class LocalSerialier(serializers.ModelSerializer):
 
     class Meta:
         model = Local
-        fields = ('id', 'name', 'identification_number', 'workload_hour', 'workload_minutes', 'company')
+        fields = ('id', 'name', 'identification_number', 'workload_hour', 'workload_minutes', 'company', 'latitude', 'longitude', 'limit_radius')
 
     def save(self, **kwargs):
         local = Local(
@@ -16,6 +16,9 @@ class LocalSerialier(serializers.ModelSerializer):
             identification_number=self.validated_data.get('identification_number'),
             workload_hour=self.validated_data.get('workload_hour', 0),
             workload_minutes=self.validated_data.get('workload_minutes', 0),
+            latitude=self.validated_data.get('latitude', -16.69057),
+            longitude=self.validated_data.get('longitude', -49.25223),
+            limit_radius=self.validated_data.get('limit_radius', 100),
             company=self.validated_data.get('company')
         )
 

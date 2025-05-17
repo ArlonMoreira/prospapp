@@ -6,6 +6,7 @@ from .serializers import LocalSerialier, Local, PointsSerializer, Points
 from company.models import CompanyPeople
 from datetime import datetime
 from django.utils import timezone
+from geopy.distance import geodesic
 
 class GetLocalViews(generics.GenericAPIView):
     serializer_class = LocalSerialier
@@ -116,6 +117,14 @@ class RegisterPointView(APIView):
 
     def post(self, request, *args, **kwargs):
         local_id = request.data.get("local_id")
+        latitude_register = request.data.get("latitude")
+        longitude_register = request.data.get("longitude")
+
+        if not latitude_register:
+            return Response({"message": "Parâmetro 'latitude' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)      
+
+        if not longitude_register:
+            return Response({"message": "Parâmetro 'longitude' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)                
 
         if not local_id:
             return Response({"message": "Parâmetro 'local_id' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
@@ -124,6 +133,18 @@ class RegisterPointView(APIView):
             local = Local.objects.get(id=local_id)
         except Local.DoesNotExist:
             return Response({"message": "Local não encontrado.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Calcula a distância em metros entre o local e a posição atual
+        distancia = geodesic(
+            (local.latitude, local.longitude),
+            (float(latitude_register), float(longitude_register))
+        ).meters
+
+        if distancia > local.limit_radius:
+            return Response({
+                "message": f"Você está fora do raio permitido de {local.limit_radius:.2f} metros.",
+                "data": []
+            }, status=status.HTTP_400_BAD_REQUEST)
         
         now = timezone.localtime(timezone.now())
         today = now.date()

@@ -39,7 +39,23 @@ class Local(models.Model):
         blank=False,
         null=True,
         verbose_name='Empresa'
-    )    
+    )
+    latitude = models.FloatField(
+        verbose_name='Latitude',
+        null=True,
+        blank=True
+    )
+    longitude = models.FloatField(
+        verbose_name='Longitude',
+        null=True,
+        blank=True
+    )
+    limit_radius = models.FloatField(
+        verbose_name='Rio limite',
+        null=True,
+        blank=True,
+        default=100
+    )      
 
     def __str__(self):
         return self.name
