@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import LocalSerialier, Local, PointsSerializer, Points
+from .serializers import LocalSerialier, Local, PointsSerializer, Points, LocalDisableSerializer
 from company.models import CompanyPeople
 from datetime import datetime
 from django.utils import timezone
@@ -18,12 +18,39 @@ class GetLocalViews(generics.GenericAPIView):
         if not companyPeople.exists():
             return Response({'message': 'Esse usuário não está vinculado a nenhum companhia.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
         
-        locals = Local.objects.filter(company_id=companyId)
+        locals = Local.objects.filter(company_id=companyId, is_active=True)
 
         locals = self.serializer_class(locals, many=True).data
 
-        return Response({'message': 'Locais de ponto recuperado', 'data': locals}, status=status.HTTP_200_OK)     
+        return Response({'message': 'Locais de ponto recuperado', 'data': locals}, status=status.HTTP_200_OK)
 
+def ResponseUpdateLocal(self, **kwargs):
+    local = Local.objects.filter(id=kwargs['localId'])
+    if local.exists():
+        serializer = self.serializer_class(local, data=kwargs['request'].data)
+
+        if(not serializer.is_valid()):
+            return Response({'message': 'Falha ao atualizar o local de registro de ponto.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Local de registro de ponto atualizado com sucesso.', 'data': data}, status=status.HTTP_200_OK)  
+
+    return Response({'message': 'Local de registro de ponto não encontrado.'}, status=status.HTTP_404_NOT_FOUND)      
+
+class LocalUpdateView(generics.GenericAPIView):
+    serializer_class = LocalSerialier
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, localId=None):
+        return ResponseUpdateLocal(self, request=request, localId=localId)
+    
+class LocalDisableView(generics.GenericAPIView):
+    serializer_class = LocalDisableSerializer
+    permission_classes = [IsAuthenticated]
+
+    def put(self, request, localId=None):
+        return ResponseUpdateLocal(self, request=request, localId=localId)    
 
 class LocalViews(generics.GenericAPIView):
     serializer_class = LocalSerialier

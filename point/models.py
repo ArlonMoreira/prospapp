@@ -27,7 +27,7 @@ class Local(models.Model):
         null=False,
         default=0  
     )
-    is_active = models.IntegerField(
+    is_active = models.BooleanField(
         verbose_name='Ativa',
         blank=False,
         null=False,
