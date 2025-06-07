@@ -7,9 +7,6 @@ from company.models import CompanyPeople
 from datetime import datetime
 from django.utils import timezone
 from geopy.distance import geodesic
-import locale
-
-locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 class GetLocalViews(generics.GenericAPIView):
     serializer_class = LocalSerialier
@@ -161,10 +158,21 @@ class ReportPointView(APIView):
 
         points = Points.objects.filter(user=user_id, date__year=year, date__month=month)
 
+        # Dicionário de tradução de dias da semana
+        weekdays_pt = {
+            "Monday": "segunda-feira",
+            "Tuesday": "terça-feira",
+            "Wednesday": "quarta-feira",
+            "Thursday": "quinta-feira",
+            "Friday": "sexta-feira",
+            "Saturday": "sábado",
+            "Sunday": "domingo"
+        }        
+
         result = [
             {
                 "date": point.date.isoformat(),
-                "dayOfWeek": point.date.strftime("%A"),
+                "dayOfWeek": weekdays_pt[point.date.strftime("%A")],  # traduz o nome do dia
                 "entry_datetime": point.entry_datetime.time().strftime("%H:%M:%S"),
                 "exit_datetime": point.exit_datetime.time().strftime("%H:%M:%S") if point.exit_datetime is not None else None,
                 "hours_worked": round(
