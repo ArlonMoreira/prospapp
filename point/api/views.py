@@ -7,6 +7,9 @@ from company.models import CompanyPeople
 from datetime import datetime
 from django.utils import timezone
 from geopy.distance import geodesic
+import locale
+
+locale.setlocale(locale.LC_TIME, "pt_BR.UTF-8")
 
 class GetLocalViews(generics.GenericAPIView):
     serializer_class = LocalSerialier
@@ -138,6 +141,44 @@ class RemovePointTodayView(generics.GenericAPIView):
         point.delete()
 
         return Response({'message': 'Ponto eletrônico removido.', 'data': data}, status=status.HTTP_200_OK)
+    
+class ReportPointView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user_id = request.data.get("user_id")
+        year = request.data.get("year")
+        month = request.data.get("month")
+
+        if not user_id:
+            return Response({"message": "Parâmetro 'user_id' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)      
+
+        if not year:
+            return Response({"message": "Parâmetro 'year' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)                
+
+        if not month:
+            return Response({"message": "Parâmetro 'month' é obrigatório.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+
+        points = Points.objects.filter(user=user_id, date__year=year, date__month=month)
+
+        result = [
+            {
+                "date": point.date.isoformat(),
+                "dayOfWeek": point.date.strftime("%A"),
+                "entry_datetime": point.entry_datetime.time().strftime("%H:%M:%S"),
+                "exit_datetime": point.exit_datetime.time().strftime("%H:%M:%S") if point.exit_datetime is not None else None,
+                "hours_worked": round(
+                    (point.exit_datetime - point.entry_datetime).total_seconds() / 3600, 2
+                ) if point.exit_datetime else None,
+                "hours_worked_hours": (
+                    f"{(point.exit_datetime - point.entry_datetime).seconds // 3600:02d}:"
+                    f"{((point.exit_datetime - point.entry_datetime).seconds % 3600) // 60:02d}"
+                ) if point.exit_datetime else None                
+            }
+            for point in points
+        ]
+        
+        return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_400_BAD_REQUEST) 
 
 class RegisterPointView(APIView):
     permission_classes = [IsAuthenticated]
