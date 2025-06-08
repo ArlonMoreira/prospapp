@@ -186,7 +186,7 @@ class ReportPointView(APIView):
             for point in points
         ]
         
-        return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_400_BAD_REQUEST) 
+        return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_200_OK) 
 
 class RegisterPointView(APIView):
     permission_classes = [IsAuthenticated]
