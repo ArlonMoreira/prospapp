@@ -93,10 +93,14 @@ class UsersPendingViews(generics.GenericAPIView):
     serializer_class = UsersPendingSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, companyId=None):
+    def get(self, request, companyId=None, excludeMe=True):
         company = Company.objects.filter(id=companyId)
         if company.exists():
-            companyPeople = CompanyPeople.objects.filter(company=company.first().id).exclude(user=request.user)
+            if excludeMe:
+                companyPeople = CompanyPeople.objects.filter(company=company.first().id).exclude(user=request.user)
+            else:
+                companyPeople = CompanyPeople.objects.filter(company=company.first().id)
+            
             userRole = CompanyPeople.objects.filter(user=request.user, company=company.first().id).first()
             
             if userRole.role == 'Gestor' or request.user.is_staff:

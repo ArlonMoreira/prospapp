@@ -3,6 +3,6 @@ from .views import PendingViews, UsersPendingViews, UsersPendingUpdateViews
 
 urlpatterns = [
     re_path('pending/', PendingViews.as_view()),
-    re_path('listusers/(?P<companyId>\d+)/$', UsersPendingViews.as_view()),
-    re_path('listusers/(?P<companyId>\d+)/(?P<userId>\d+)/$', UsersPendingUpdateViews.as_view()),
+    re_path('listusers/(?P<companyId>\d+)/(?P<excludeMe>\d+)/$', UsersPendingViews.as_view()),
+    re_path('changeusers/(?P<companyId>\d+)/(?P<userId>\d+)/$', UsersPendingUpdateViews.as_view()),
 ]
