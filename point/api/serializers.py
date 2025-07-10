@@ -63,12 +63,32 @@ class LocalSerialier(serializers.ModelSerializer):
 
         return local
     
+class PointsJustifySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Points
+        fields = ('id', 'user', 'local', 'date', 'entry_datetime', 'exit_datetime', 'is_justify', 'justify_description')
+
+    def save(self, **kwargs):
+        point = Points(
+            user=self.context['user'],
+            local=self.validated_data.get('local'),
+            date=self.validated_data.get('date'),
+            entry_datetime=self.validated_data.get('entry_datetime'),
+            exit_datetime=self.validated_data.get('exit_datetime'),
+            is_justify=self.validated_data.get('is_justify'),
+            justify_description=self.validated_data.get('justify_description'),
+        )
+
+        point.save()
+        return point     
+    
 class PointsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Points
-        fields = ('id', 'user', 'local', 'date', 'entry_datetime', 'exit_datetime')
-        read_only_fields = ('user', 'local', 'date', 'entry_datetime', 'exit_datetime')
+        fields = ('id', 'user', 'local', 'date', 'entry_datetime', 'exit_datetime', 'is_justify', 'justify_description')
+        read_only_fields = ('user', 'local', 'date', 'entry_datetime', 'exit_datetime', 'is_justify', 'justify_description')
 
     def get_date(self, obj):
         return obj.entry_datetime.date() if obj.entry_datetime else None        

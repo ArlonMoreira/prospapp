@@ -2,7 +2,7 @@ from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import LocalSerialier, Local, PointsSerializer, Points, LocalDisableSerializer
+from .serializers import PointsJustifySerializer, LocalSerialier, Local, PointsSerializer, Points, LocalDisableSerializer
 from company.models import CompanyPeople
 from datetime import datetime
 from django.utils import timezone
@@ -223,12 +223,67 @@ class ReportPointView(APIView):
         #     for point in points
         # ]
         
-        return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_200_OK) 
+        return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_200_OK)
+    
+from datetime import datetime
+from django.utils import timezone
+
+class RegisterPointJustifyView(generics.GenericAPIView):
+    serializer_class = PointsJustifySerializer
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        # Transformar dados em um dicionário mutável
+        data = request.data.copy()
+
+        # Local
+        try:        
+            data['local'] = Local.objects.get(id=data['local'])
+        except Local.DoesNotExist:
+            return Response({"message": "Local não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Obter data atual
+        now = timezone.localtime(timezone.now())
+        today = now.date()
+
+        data['date'] = today
+
+        # Obter data de entrada
+        try: 
+            naive_entry_dt = timezone.make_aware(datetime.strptime(f"{today} {data['entry_datetime']}", "%Y-%m-%d %H:%M:%S"))
+            data['entry_datetime'] = timezone.localtime(naive_entry_dt)
+        except:
+            return Response({"message": "Horário de entrada não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)        
+
+        # Obter data de saída
+        try:
+            naive_exit_dt = timezone.make_aware(datetime.strptime(f"{today} {data['exit_datetime']}", "%Y-%m-%d %H:%M:%S"))
+            data['exit_datetime'] = timezone.localtime(naive_exit_dt)  
+        except:
+            return Response({"message": "Horário de saída não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)              
+
+        # Confirmar justificativa
+        data['is_justify'] = True
+
+        # Local deve ser o id também (e não objeto)
+        data['local'] = data['local'].id
+
+        serializer = self.serializer_class(data=data, context={'user': request.user})
+        
+        # Validar formulário
+        if not serializer.is_valid():
+            return Response({'message': 'Falha ao justificar ponto.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Salvar e retornar dados
+        data = self.serializer_class(serializer.save()).data
+
+        return Response({'message': 'Ponto justificado com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+
 
 class RegisterPointView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         local_id = request.data.get("local_id")
         latitude_register = request.data.get("latitude")
         longitude_register = request.data.get("longitude")

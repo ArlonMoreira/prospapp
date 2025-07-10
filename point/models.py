@@ -92,6 +92,16 @@ class Points(models.Model):
         null=True,  # permite que o ponto seja aberto sem saída ainda
         blank=True
     )
+    is_justify = models.BooleanField(
+        verbose_name="Ponto justificado",
+        default=False
+    )
+    justify_description = models.CharField(
+        verbose_name="Justificativa",
+        null=True,
+        blank=True,
+        max_length=125
+    )
 
     def __str__(self):
         return f"{self.user} - Entrada: {self.entry_datetime} / Saída: {self.exit_datetime or '---'}"
