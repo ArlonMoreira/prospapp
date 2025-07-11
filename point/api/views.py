@@ -182,7 +182,9 @@ class ReportPointView(APIView):
                     "hours_worked_hours": (
                         f"{(point.exit_datetime - point.entry_datetime).seconds // 3600:02d}:"
                         f"{((point.exit_datetime - point.entry_datetime).seconds % 3600) // 60:02d}"
-                    ) if point.exit_datetime else None                
+                    ) if point.exit_datetime else None,
+                    "is_justify": point.is_justify,
+                    "justify_description": point.justify_description           
                 }
                 for point in points.filter(local=local['id'])                    
             ]
@@ -192,36 +194,6 @@ class ReportPointView(APIView):
         result = {
             key: value for key, value in result.items() if len(value) > 0
         }
-            #print(key, value, len(value))
-        # for item in result:
-        #     print(item)
-        # Dicionário de tradução de dias da semana
-        # weekdays_pt = {
-        #     "Monday": "segunda-feira",
-        #     "Tuesday": "terça-feira",
-        #     "Wednesday": "quarta-feira",
-        #     "Thursday": "quinta-feira",
-        #     "Friday": "sexta-feira",
-        #     "Saturday": "sábado",
-        #     "Sunday": "domingo"
-        # }        
-
-        # result = [
-        #     {
-        #         "date": point.date.isoformat(),
-        #         "dayOfWeek": weekdays_pt[point.date.strftime("%A")],  # traduz o nome do dia
-        #         "entry_datetime": point.entry_datetime.time().strftime("%H:%M:%S"),
-        #         "exit_datetime": point.exit_datetime.time().strftime("%H:%M:%S") if point.exit_datetime is not None else None,
-        #         "hours_worked": round(
-        #             (point.exit_datetime - point.entry_datetime).total_seconds() / 3600, 2
-        #         ) if point.exit_datetime else None,
-        #         "hours_worked_hours": (
-        #             f"{(point.exit_datetime - point.entry_datetime).seconds // 3600:02d}:"
-        #             f"{((point.exit_datetime - point.entry_datetime).seconds % 3600) // 60:02d}"
-        #         ) if point.exit_datetime else None                
-        #     }
-        #     for point in points
-        # ]
         
         return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_200_OK)
     
