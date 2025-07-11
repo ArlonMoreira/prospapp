@@ -69,6 +69,23 @@ class PointsJustifySerializer(serializers.ModelSerializer):
         model = Points
         fields = ('id', 'user', 'local', 'date', 'entry_datetime', 'exit_datetime', 'is_justify', 'justify_description')
 
+    def validate_justify_description(self, value):
+        if not value or not value.strip():
+            raise serializers.ValidationError("A justificativa é obrigatório e não pode estar vazio.")
+        return value
+    
+    def validate_exit_datetime(self, value):
+        entry_datetime = self.initial_data.get('entry_datetime')
+
+        if isinstance(entry_datetime, str):
+            from django.utils.dateparse import parse_datetime
+            entry_datetime = parse_datetime(entry_datetime)
+
+        if entry_datetime and value and value < entry_datetime:
+            raise serializers.ValidationError("A saída não pode ser anterior à entrada.")
+
+        return value    
+
     def save(self, **kwargs):
         point = Points(
             user=self.context['user'],
