@@ -89,24 +89,23 @@ class StudentUpdateSerializer(serializers.ModelSerializer):
 
 class ClassOfStudentSerializer(serializers.ModelSerializer):
 
-    company = serializers.IntegerField(
-        write_only=True,
-        required=True
-    )
+    company = serializers.IntegerField(write_only=True, required=True)
+    student_count = serializers.SerializerMethodField()
 
     class Meta:
         model = ClassOfStudent
-        fields = ('id', 'name', 'company')
+        fields = ('id', 'name', 'company', 'student_count')
+
+    def get_student_count(self, obj):
+        return Student.objects.filter(classOfStudent=obj, is_active=True).count()
 
     def save(self, **kwargs):
-
         company = Company.objects.filter(id=self.validated_data.get('company')).first()
-
+        
         classOfStudent = ClassOfStudent(
             company=company,
             name=self.validated_data.get('name')
         )
-
         classOfStudent.save()
 
         return classOfStudent
