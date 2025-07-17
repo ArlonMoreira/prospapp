@@ -2,4 +2,6 @@
 PassengerAppRoot "/home/prospere/prospapp"
 PassengerBaseURI "/"
 PassengerPython "/home/prospere/virtualenv/prospapp/3.10/bin/python"
+PassengerAppType wsgi
+PassengerStartupFile passenger_wsgi.py
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
