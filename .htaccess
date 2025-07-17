@@ -5,3 +5,6 @@ PassengerPython "/home/prospere/virtualenv/prospapp/3.10/bin/python"
 PassengerAppType wsgi
 PassengerStartupFile passenger_wsgi.py
 # DO NOT REMOVE. CLOUDLINUX PASSENGER CONFIGURATION END
+
+PassengerLogLevel 3
+PassengerDebugLogFile /home/prospere/passenger_debug.log
