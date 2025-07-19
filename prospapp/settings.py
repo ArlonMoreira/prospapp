@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'accounts',
     'company',
     'call',
+    'app',
     'point'
 ]
 
