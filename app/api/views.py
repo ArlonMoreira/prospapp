@@ -6,6 +6,10 @@ class VersionView(APIView):
 
     def get(self, request):
 
-        version = VersionManager.objects.all()[0].version
+        data = VersionManager.objects.all()[0]
 
-        return Response({"minVersion": version})
+        return Response({
+            "minVersion": data.version,
+            "expo_build_link_android": data.expo_build_link_android,
+            "expo_build_link_ios": data.expo_build_link_ios
+        })
