@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
 from company.models import Company
+from accounts.models import Users
 from django.utils import timezone
 import pytz
 
@@ -29,6 +30,28 @@ class ClassOfStudent(models.Model):
         unique_together = ('name', 'company')
         verbose_name='Turma'
         verbose_name_plural='Turmas'
+
+class UsersInClass(models.Model):
+    classOfStudent = models.ForeignKey(
+        ClassOfStudent,
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name='Turma'
+    )
+    user = models.ForeignKey(
+        Users,
+        on_delete=models.CASCADE,
+        null=True,
+        verbose_name='Professor'        
+    )
+
+    def __str__(self):
+        return "{} - {}".format(self.classOfStudent, self.user)
+    
+    class Meta:
+        unique_together = ('classOfStudent', 'user')
+        verbose_name='Professor Turma'
+        verbose_name_plural='rofessor Turmas'
 
 class Student(models.Model):
     name = models.CharField(

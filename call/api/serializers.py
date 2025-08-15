@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from call.models import ClassOfStudent, Company, Student, Call
+from call.models import ClassOfStudent, Company, Student, Call, UsersInClass
 from django.utils import timezone
 from validate_docbr import CPF
 import pytz
@@ -109,6 +109,7 @@ class ClassOfStudentSerializer(serializers.ModelSerializer):
         classOfStudent.save()
 
         return classOfStudent
+
     
 class ClassOfStudentUpdateSerializer(serializers.ModelSerializer):
 

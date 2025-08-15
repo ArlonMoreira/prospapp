@@ -1,7 +1,11 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
+from accounts.models import Users
 from call.api.serializers import StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
+from call.models import UsersInClass
+from company.models import CompanyPeople
 from django.utils import timezone
 from django.db.models import F, Q
 from datetime import date, timedelta, datetime
@@ -148,6 +152,87 @@ class StudentDisableView(generics.GenericAPIView):
 
     def put(self, request, student=None):
         return ResponseUpdateStudent(self, request=request, student=student)
+    
+# class RelateClassAndStudent(generics.GenericAPIView):
+#     serializer_class = 
+#     permission_classes = [IsAuthenticated]
+
+#     def post(self, request, *args, **kwargs):
+#         class_id = request.data.get('classId')
+#         user_id = request.data.get('user')
+
+#         # Validação de campos obrigatórios
+#         if not class_id:
+#             return Response({"message": "O campo 'classId' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+#         if not user_id:
+#             return Response({"message": "O campo 'user' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+
+#         # Validação se existem no banco
+#         class_of_student = ClassOfStudent.objects.filter(id=class_id).first()
+#         if not class_of_student:
+#             return Response({"message": "Classe informada não existe."}, status=status.HTTP_404_NOT_FOUND)
+
+#         user = Users.objects.filter(id=user_id).first()
+#         if not user:
+#             return Response({"message": "Usuário informado não existe."}, status=status.HTTP_404_NOT_FOUND)
+
+#         # Se chegou até aqui, está tudo certo
+#         print(class_of_student, user)
+
+#         return Response({"message": "Relacionamento validado com sucesso."}, status=status.HTTP_200_OK)
+
+class ClassOfStudentRelateView(generics.GenericAPIView):
+    serializer_class = ClassOfStudentSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, company=None):
+        companyPeople = CompanyPeople.objects.filter(user=request.user).first()
+
+        if not companyPeople:
+            return Response(
+                {'message': 'Usuário não vinculado a nenhuma empresa.'},
+                status=status.HTTP_404_NOT_FOUND
+            )        
+
+        #Caso o usuário for Gestor, conseguirá ver todas as turmas.
+        if companyPeople.role == "Gestor":
+            classOfStudent = ClassOfStudent.objects.filter(
+                company=company,
+                is_active=True
+            )    
+
+        else:    
+            classOfStudent = ClassOfStudent.objects.filter(
+                company=company,
+                is_active=True,
+                usersinclass__user=request.user  # Filtra pelo usuário logado
+            )
+
+        serializer = self.serializer_class(classOfStudent, many=True).data
+
+        return Response(
+            {'message': 'Dados recuperados com sucesso', 'data': serializer},
+            status=status.HTTP_200_OK
+        )
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        
+        if(not serializer.is_valid()):
+            return Response({'message': 'Falha ao cadastrar turma. Talvez já tenha essa turma cadastrada.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        instance = serializer.save()
+        data = self.serializer_class(instance).data
+
+        usersInClass = UsersInClass(
+            classOfStudent=instance,
+            user=request.user
+        )
+
+        usersInClass.save()
+
+        return Response({'message': 'Turma registrada com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+    
 
 class ClassOfStudentView(generics.GenericAPIView):
     serializer_class = ClassOfStudentSerializer
