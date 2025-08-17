@@ -152,7 +152,8 @@ class StudentDisableView(generics.GenericAPIView):
 
     def put(self, request, student=None):
         return ResponseUpdateStudent(self, request=request, student=student)
-    
+
+#Endpoint responsável por associar a turma ao usuário.
 class RelateClassAndStudent(generics.GenericAPIView):
     serializer_class = UsersInClassSerializer
     permission_classes = [IsAuthenticated]
@@ -235,6 +236,7 @@ class ClassOfStudentRelateView(generics.GenericAPIView):
         instance = serializer.save()
         data = self.serializer_class(instance).data
 
+        #Cada vez que criar uma turma, o usuário que criou a turma será associado a ela.
         usersInClass = UsersInClass(
             classOfStudent=instance,
             user=request.user
