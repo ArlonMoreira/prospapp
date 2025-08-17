@@ -50,7 +50,7 @@ class UsersInClass(models.Model):
     
     class Meta:
         verbose_name='Professor Turma'
-        verbose_name_plural='rofessor Turmas'
+        verbose_name_plural='Professores Turmas'
 
 class Student(models.Model):
     name = models.CharField(
