@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from accounts.models import Users
-from call.api.serializers import StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
+from call.api.serializers import UsersInClassSerializer, StudentDisableSerializer, StudentUpdateSerializer, ClassOfStudentDisableSerializer, ClassOfStudentUpdateSerializer, ClassOfStudentSerializer, ClassOfStudent, StudentSerializer, Student, CallSerializer, Call
 from call.models import UsersInClass
 from company.models import CompanyPeople
 from django.utils import timezone
@@ -153,33 +153,44 @@ class StudentDisableView(generics.GenericAPIView):
     def put(self, request, student=None):
         return ResponseUpdateStudent(self, request=request, student=student)
     
-# class RelateClassAndStudent(generics.GenericAPIView):
-#     serializer_class = 
-#     permission_classes = [IsAuthenticated]
+class RelateClassAndStudent(generics.GenericAPIView):
+    serializer_class = UsersInClassSerializer
+    permission_classes = [IsAuthenticated]
 
-#     def post(self, request, *args, **kwargs):
-#         class_id = request.data.get('classId')
-#         user_id = request.data.get('user')
+    def get(self, classId=None, company=None):
+        usersInClass = UsersInClass.objects.filter(classOfStudent=classId).values_list('user__id', flat=True)
+        usersInClass_set = set(usersInClass)  # melhora a performance na verificação
 
-#         # Validação de campos obrigatórios
-#         if not class_id:
-#             return Response({"message": "O campo 'classId' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
-#         if not user_id:
-#             return Response({"message": "O campo 'user' é obrigatório."}, status=status.HTTP_400_BAD_REQUEST)
+        users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True).values(
+            'user__full_name', 'user__id', 'role'
+        ))
 
-#         # Validação se existem no banco
-#         class_of_student = ClassOfStudent.objects.filter(id=class_id).first()
-#         if not class_of_student:
-#             return Response({"message": "Classe informada não existe."}, status=status.HTTP_404_NOT_FOUND)
+        for user in users:
+            user['selected'] = True if user['role'] == 'Gestor' else user['user__id'] in usersInClass_set
 
-#         user = Users.objects.filter(id=user_id).first()
-#         if not user:
-#             return Response({"message": "Usuário informado não existe."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"message": "Usuários recuperados com sucesso.", "data":users}, status=status.HTTP_200_OK)
 
-#         # Se chegou até aqui, está tudo certo
-#         print(class_of_student, user)
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
 
-#         return Response({"message": "Relacionamento validado com sucesso."}, status=status.HTTP_200_OK)
+        if(not serializer.is_valid()):
+            return Response({'message': 'Falha ao associar usuário.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        companyPeople = CompanyPeople.objects.filter(user__id=request.data['user'], is_joined=True)
+
+        if companyPeople.first().role == "Gestor":
+            return Response({'message': 'Não é permitido alterar as permissões dos gestores.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        
+        else:
+            data = self.serializer_class(serializer.save()).data
+
+            users = list(companyPeople.values(
+                'user__full_name', 'user__id', 'role'
+            ))      
+
+            users[0]['selected'] = not(data['user'] is None)        
+
+            return Response({"message": "Relacionamento validado com sucesso.", 'data': users}, status=status.HTTP_200_OK)
 
 class ClassOfStudentRelateView(generics.GenericAPIView):
     serializer_class = ClassOfStudentSerializer

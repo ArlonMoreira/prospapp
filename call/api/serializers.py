@@ -86,6 +86,28 @@ class StudentUpdateSerializer(serializers.ModelSerializer):
         Student.save()
 
         return Student
+    
+class UsersInClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UsersInClass
+        fields = ('classOfStudent', 'user')
+
+    def save(self, **kwargs):
+        class_of_student = self.validated_data.get('classOfStudent')
+        user = self.validated_data.get('user')
+
+        instance = UsersInClass.objects.filter(
+            classOfStudent=class_of_student,
+            user=user
+        ).first()
+
+        if instance:
+            # Já existe → remover
+            instance.delete()
+            return None
+        else:
+            # Não existe → criar
+            return super().save(**kwargs)
 
 class ClassOfStudentSerializer(serializers.ModelSerializer):
 

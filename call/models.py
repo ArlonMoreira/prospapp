@@ -49,7 +49,6 @@ class UsersInClass(models.Model):
         return "{} - {}".format(self.classOfStudent, self.user)
     
     class Meta:
-        unique_together = ('classOfStudent', 'user')
         verbose_name='Professor Turma'
         verbose_name_plural='rofessor Turmas'
 

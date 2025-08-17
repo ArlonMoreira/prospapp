@@ -1,5 +1,5 @@
 from django.urls import re_path
-from .views import ClassOfStudentRelateView, StudentDisableView, StudentUpdateView, ClassOfStudentDisableView, ClassOfStudentUpdateView, ClassOfStudentView, StudentView, CallView, ReportCallView
+from .views import RelateClassAndStudent, ClassOfStudentRelateView, StudentDisableView, StudentUpdateView, ClassOfStudentDisableView, ClassOfStudentUpdateView, ClassOfStudentView, StudentView, CallView, ReportCallView
 
 urlpatterns = [
     re_path('call/register/', CallView.as_view()),
@@ -11,7 +11,9 @@ urlpatterns = [
     re_path('class/register/', ClassOfStudentView.as_view()),
     re_path('class/list/(?P<company>\d+)/$', ClassOfStudentView.as_view()),
     re_path('class/relate/register/', ClassOfStudentRelateView.as_view()),
-    re_path('class/relate/list/(?P<company>\d+)/$', ClassOfStudentRelateView.as_view()),        
+    re_path('class/relate/list/(?P<company>\d+)/$', ClassOfStudentRelateView.as_view()),     
+    re_path('class/relate/users/(?P<company>\d+)/(?P<classId>\d+)/$', RelateClassAndStudent.as_view()),   
+    re_path('class/relate/addusers/$', RelateClassAndStudent.as_view()),  
     re_path('class/change/(?P<Class>\d+)/$', ClassOfStudentUpdateView.as_view()),
     re_path('class/disabled/(?P<Class>\d+)/$', ClassOfStudentDisableView.as_view())
 ]
