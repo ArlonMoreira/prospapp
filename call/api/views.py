@@ -162,7 +162,7 @@ class RelateClassAndStudent(generics.GenericAPIView):
         usersInClass = UsersInClass.objects.filter(classOfStudent=classId).values_list('user__id', flat=True)
         usersInClass_set = set(usersInClass)  # melhora a performance na verificação
 
-        users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True, role="Colaborador").values(
+        users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True, role="Colaborador").exclude(user=request.user).values(
             'user__full_name', 'user__id', 'role'
         ))
 
