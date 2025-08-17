@@ -158,7 +158,7 @@ class RelateClassAndStudent(generics.GenericAPIView):
     serializer_class = UsersInClassSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, classId=None, company=None):
+    def get(self, request, classId=None, company=None):
         usersInClass = UsersInClass.objects.filter(classOfStudent=classId).values_list('user__id', flat=True)
         usersInClass_set = set(usersInClass)  # melhora a performance na verificação
 
