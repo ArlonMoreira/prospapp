@@ -162,13 +162,9 @@ class RelateClassAndStudent(generics.GenericAPIView):
         usersInClass = UsersInClass.objects.filter(classOfStudent=classId).values_list('user__id', flat=True)
         usersInClass_set = set(usersInClass)  # melhora a performance na verificação
 
-        users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True, role="Colaborador").values(
+        users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True, role="Colaborador").exclude(user=request.user).values(
             'user__full_name', 'user__id', 'role'
-        ))        
-
-        # users = list(CompanyPeople.objects.filter(company__id=company, is_joined=True, role="Colaborador").exclude(user=request.user).values(
-        #     'user__full_name', 'user__id', 'role'
-        # ))
+        ))
 
         for user in users:
             user['selected'] = True if user['role'] == 'Gestor' else user['user__id'] in usersInClass_set
@@ -208,26 +204,21 @@ class ClassOfStudentRelateView(generics.GenericAPIView):
             return Response(
                 {'message': 'Usuário não vinculado a nenhuma empresa.'},
                 status=status.HTTP_404_NOT_FOUND
-            )        
-        
-        classOfStudent = ClassOfStudent.objects.filter(
-            company=company,
-            is_active=True
-        )       
+            )    
 
         #Caso o usuário for Gestor, conseguirá ver todas as turmas.
-        # if companyPeople.role == "Gestor":
-        #     classOfStudent = ClassOfStudent.objects.filter(
-        #         company=company,
-        #         is_active=True
-        #     )    
+        if companyPeople.role == "Gestor":
+            classOfStudent = ClassOfStudent.objects.filter(
+                company=company,
+                is_active=True
+            )    
 
-        # else:    
-        #     classOfStudent = ClassOfStudent.objects.filter(
-        #         company=company,
-        #         is_active=True,
-        #         usersinclass__user=request.user  # Filtra pelo usuário logado
-        #     )
+        else:    
+            classOfStudent = ClassOfStudent.objects.filter(
+                company=company,
+                is_active=True,
+                usersinclass__user=request.user  # Filtra pelo usuário logado
+            )
 
         serializer = self.serializer_class(classOfStudent, many=True).data
 
