@@ -119,7 +119,7 @@ class StudentView(generics.GenericAPIView):
         data = self.serializer_class(serializer.save()).data
 
         data['present'] = None
-        data['date'] = None 
+        data['date'] = timezone.now().astimezone(pytz.timezone('America/Sao_Paulo')).date() 
 
         return Response({'message': 'Aluno registrado com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
     
