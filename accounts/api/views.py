@@ -58,7 +58,8 @@ class MeView(generics.GenericAPIView):
             'email': request.user.email,
             'profileImage': request.user.profileImage.url if request.user.profileImage else settings.MEDIA_URL+'profiles/default_profile.png',
             'companys_joined': companys_joined,
-            'is_staff': request.user.is_staff
+            'is_staff': request.user.is_staff,
+            'id': request.user.id
         }
 
         return Response({'message': 'Dados obtidos com sucesso', 'data': data}, status=status.HTTP_200_OK)
