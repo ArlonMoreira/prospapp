@@ -3,6 +3,7 @@ from .views import RelateClassAndStudent, ClassOfStudentRelateView, StudentDisab
 
 urlpatterns = [
     re_path('call/register/', CallView.as_view()),
+    re_path('call/remover/(?P<classId>\d+)/', CallView.as_view()),
     re_path('call/report/(?P<classId>\d+)/(?P<year>\d+)/(?P<month>\d+)/$', ReportCallView.as_view()),
     re_path('student/register/', StudentView.as_view()),
     re_path(r'^student/list/(?P<classId>\d+)(?:/(?P<date>\d+))?/$', StudentView.as_view()),

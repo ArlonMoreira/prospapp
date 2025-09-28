@@ -16,6 +16,39 @@ class CallView(generics.GenericAPIView):
     serializer_class = CallSerializer
     permission_classes = [IsAuthenticated]
 
+    def delete(self, request, classId=None):
+
+        date = request.data.get('date')
+        if not date:
+            return Response(
+                {"message": "Parâmetro 'date' é obrigatório.", 'data': []},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # alunos da turma
+        students = Student.objects.filter(classOfStudent__id=classId)
+
+        # chamadas dos alunos da turma naquela data
+        calls = Call.objects.filter(
+            student__in=students,
+            date=date
+        )
+
+        if calls:
+            serializer = self.get_serializer(calls, many=True).data
+            
+            # Percorro a lista e coloco None (-> null no JSON) em 'present'
+            for item in serializer:
+                item['present'] = None
+
+            # Excluir chamadas
+            calls.delete()            
+
+            return Response({'message': 'Chamada removida com sucesso.', 'data': serializer}, status=status.HTTP_201_CREATED)
+        
+        else:
+            return Response({'message': 'Sem chamadas registradas para esse dia.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+
     def post(self, request, *args, **kwargs):
         if not isinstance(request.data, list):
             return Response({'message': 'Falha ao registrar chamada, é esperado uma lista de alunos'}, status=status.HTTP_400_BAD_REQUEST)
