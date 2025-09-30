@@ -17,7 +17,6 @@ class CallView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, classId=None):
-
         date = request.data.get('date')
         if not date:
             return Response(
@@ -28,26 +27,44 @@ class CallView(generics.GenericAPIView):
         # alunos da turma
         students = Student.objects.filter(classOfStudent__id=classId)
 
-        # chamadas dos alunos da turma naquela data
-        calls = Call.objects.filter(
+        # chamadas dos alunos da turma naquela data (queryset puro p/ deletar)
+        calls_qs = Call.objects.filter(
             student__in=students,
             date=date
         )
 
-        if calls:
-            serializer = self.get_serializer(calls, many=True).data
-            
-            # Percorro a lista e coloco None (-> null no JSON) em 'present'
-            for item in serializer:
-                item['present'] = None
+        if calls_qs.exists():
+            # gera os dados pro retorno
+            data = [
+                {
+                    "date": c["date"],
+                    "id": c["student__id"],
+                    "identification_number": c["student__identification_number"],
+                    "name": c["student__name"],
+                    "present": None  # sempre null
+                }
+                for c in calls_qs.values(
+                    "date",
+                    "student__id",
+                    "student__identification_number",
+                    "student__name",
+                    "present"
+                )
+            ]
 
-            # Excluir chamadas
-            calls.delete()            
+            # agora sim, deleta
+            calls_qs.delete()
 
-            return Response({'message': 'Chamada removida com sucesso.', 'data': serializer}, status=status.HTTP_201_CREATED)
-        
+            return Response(
+                {'message': 'Chamada removida com sucesso.', 'data': data},
+                status=status.HTTP_201_CREATED
+            )
+
         else:
-            return Response({'message': 'Sem chamadas registradas para esse dia.', 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'message': 'Sem chamadas registradas para esse dia.', 'data': []},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
     def post(self, request, *args, **kwargs):
         if not isinstance(request.data, list):
