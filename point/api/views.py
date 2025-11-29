@@ -205,48 +205,44 @@ class RegisterPointJustifyView(generics.GenericAPIView):
         # Transformar dados em um dicionário mutável
         data = request.data.copy()
 
-        # Local
-        try:        
-            data['local'] = Local.objects.get(id=data['local'])
+        # Validar local
+        try:
+            local_obj = Local.objects.get(id=data['local'])
+            data['local'] = local_obj.id  # só envia o ID para o serializer
         except Local.DoesNotExist:
             return Response({"message": "Local não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Obter data atual
-        now = timezone.now() #timezone.localtime(timezone.now())
-        today = now.date()
 
+        # Obter data atual
+        today = datetime.now().date()
         data['date'] = today
 
-        # Obter data de entrada
-        try: 
-            naive_entry_dt = timezone.make_aware(datetime.strptime(f"{today} {data['entry_datetime']}", "%Y-%m-%d %H:%M:%S"))
-            data['entry_datetime'] = naive_entry_dt #timezone.localtime(naive_entry_dt)
-        except:
-            return Response({"message": "Horário de entrada não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)        
-
-        # Obter data de saída
+        # Obter datetime de entrada (naive)
         try:
-            naive_exit_dt = timezone.make_aware(datetime.strptime(f"{today} {data['exit_datetime']}", "%Y-%m-%d %H:%M:%S"))
-            data['exit_datetime'] = naive_exit_dt #timezone.localtime(naive_exit_dt)  
+            entry_dt = datetime.strptime(f"{today} {data['entry_datetime']}", "%Y-%m-%d %H:%M:%S")
+            data['entry_datetime'] = entry_dt
         except:
-            return Response({"message": "Horário de saída não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)              
+            return Response({"message": "Horário de entrada não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Obter datetime de saída (naive)
+        try:
+            exit_dt = datetime.strptime(f"{today} {data['exit_datetime']}", "%Y-%m-%d %H:%M:%S")
+            data['exit_datetime'] = exit_dt
+        except:
+            return Response({"message": "Horário de saída não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
 
         # Confirmar justificativa
         data['is_justify'] = True
 
-        # Local deve ser o id também (e não objeto)
-        data['local'] = data['local'].id
-
+        # Serializar e validar
         serializer = self.serializer_class(data=data, context={'user': request.user})
-        
-        # Validar formulário
         if not serializer.is_valid():
             return Response({'message': 'Falha ao justificar ponto.', 'data': serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-        
-        # Salvar e retornar dados
-        data = self.serializer_class(serializer.save()).data
 
-        return Response({'message': 'Ponto justificado com sucesso.', 'data': data}, status=status.HTTP_201_CREATED)
+        # Salvar e retornar dados
+        saved_point = serializer.save()
+        response_data = self.serializer_class(saved_point).data
+
+        return Response({'message': 'Ponto justificado com sucesso.', 'data': response_data}, status=status.HTTP_201_CREATED)
 
 
 class RegisterPointView(APIView):

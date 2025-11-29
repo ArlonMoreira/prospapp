@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from ..models import Local, Points
 from company.models import Company
+from rest_framework import serializers
+from django.utils.dateparse import parse_datetime
 
 class LocalDisableSerializer(serializers.ModelSerializer):
 
@@ -71,20 +73,21 @@ class PointsJustifySerializer(serializers.ModelSerializer):
 
     def validate_justify_description(self, value):
         if not value or not value.strip():
-            raise serializers.ValidationError("A justificativa é obrigatório e não pode estar vazio.")
+            raise serializers.ValidationError("A justificativa é obrigatória e não pode estar vazia.")
         return value
-    
+
     def validate_exit_datetime(self, value):
+        # Obter entry_datetime da request
         entry_datetime = self.initial_data.get('entry_datetime')
 
         if isinstance(entry_datetime, str):
-            from django.utils.dateparse import parse_datetime
-            entry_datetime = parse_datetime(entry_datetime)
+            entry_datetime = parse_datetime(entry_datetime)  # retorna naive se não tiver timezone
 
+        # Comparar somente se ambos existem
         if entry_datetime and value and value < entry_datetime:
             raise serializers.ValidationError("A saída não pode ser anterior à entrada.")
 
-        return value    
+        return value
 
     def save(self, **kwargs):
         point = Points(
@@ -98,7 +101,7 @@ class PointsJustifySerializer(serializers.ModelSerializer):
         )
 
         point.save()
-        return point     
+        return point   
     
 class PointsSerializer(serializers.ModelSerializer):
 
