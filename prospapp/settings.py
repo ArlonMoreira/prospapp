@@ -118,7 +118,10 @@ DATABASES = {
         'USER': os.environ['DB_USER_PROSPAPP'],
         'PASSWORD': os.environ['DB_PASSWORD_PROSPAPP'],
         'HOST': os.environ['DB_HOST_PROSPAPP'],
-        'PORT': os.environ['DB_PORT_PROSPAPP']
+        'PORT': os.environ['DB_PORT_PROSPAPP'],
+        'OPTIONS': {
+            'init_command': "SET time_zone = '-03:00';",
+        },       
     }
 }
 

@@ -87,7 +87,7 @@ class RegisterPointActualView(generics.GenericAPIView):
         except Local.DoesNotExist:
             return Response({"message": "Local não encontrado.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
         
-        now = timezone.localtime(timezone.now())
+        now = timezone.now() #timezone.localtime(timezone.now())
         today = now.date()        
         
         open_point = Points.objects.filter(
@@ -124,7 +124,7 @@ class RemovePointTodayView(generics.GenericAPIView):
     serializer_class = PointsSerializer
 
     def delete(self, request, pointId=None):
-        now = timezone.localtime(timezone.now())
+        now = timezone.now() #timezone.localtime(timezone.now())
         today = now.date()  
 
         point = Points.objects.filter(id=pointId, date=today).first()
@@ -196,9 +196,6 @@ class ReportPointView(APIView):
         }
         
         return Response({"message": "Dados do relatório obtido com sucesso.", 'data': result}, status=status.HTTP_200_OK)
-    
-from datetime import datetime
-from django.utils import timezone
 
 class RegisterPointJustifyView(generics.GenericAPIView):
     serializer_class = PointsJustifySerializer
@@ -215,7 +212,7 @@ class RegisterPointJustifyView(generics.GenericAPIView):
             return Response({"message": "Local não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)
         
         # Obter data atual
-        now = timezone.localtime(timezone.now())
+        now = timezone.now() #timezone.localtime(timezone.now())
         today = now.date()
 
         data['date'] = today
@@ -223,14 +220,14 @@ class RegisterPointJustifyView(generics.GenericAPIView):
         # Obter data de entrada
         try: 
             naive_entry_dt = timezone.make_aware(datetime.strptime(f"{today} {data['entry_datetime']}", "%Y-%m-%d %H:%M:%S"))
-            data['entry_datetime'] = timezone.localtime(naive_entry_dt)
+            data['entry_datetime'] = naive_entry_dt #timezone.localtime(naive_entry_dt)
         except:
             return Response({"message": "Horário de entrada não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)        
 
         # Obter data de saída
         try:
             naive_exit_dt = timezone.make_aware(datetime.strptime(f"{today} {data['exit_datetime']}", "%Y-%m-%d %H:%M:%S"))
-            data['exit_datetime'] = timezone.localtime(naive_exit_dt)  
+            data['exit_datetime'] = naive_exit_dt #timezone.localtime(naive_exit_dt)  
         except:
             return Response({"message": "Horário de saída não informado ou inválido.", 'data': []}, status=status.HTTP_400_BAD_REQUEST)              
 
@@ -286,7 +283,8 @@ class RegisterPointView(APIView):
                 "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
         
-        now = timezone.localtime(timezone.now())
+        now = timezone.now()#timezone.localtime(timezone.now())
+
         today = now.date()
 
         # Verifica se já existe um ponto aberto (sem saída) hoje para esse local
