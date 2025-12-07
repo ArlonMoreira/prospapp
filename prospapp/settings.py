@@ -76,8 +76,8 @@ ROOT_URLCONF = 'prospapp.urls'
 SIMPLE_JWT = {
     'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken', 'rest_framework_simplejwt.tokens.RefreshToken'),
     'BLACKLIST_AFTER_ROTATION': True,    
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(seconds=20),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=30),
+    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=5),
+    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=90),
 }
 
 REST_FRAMEWORK = {
