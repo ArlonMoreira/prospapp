@@ -231,7 +231,7 @@ class RefreshTokenView(TokenRefreshView, mixins.ListModelMixin, mixins.CreateMod
             'message': 'Sessão renovada.',
             'data': {
                 'refresh': str(new_refresh),
-                'access': str(access_token)
+                'token': str(access_token)
             }
         })
 
